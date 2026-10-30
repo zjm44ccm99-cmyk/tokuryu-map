@@ -91,6 +91,8 @@ def head(title, desc, path):
     url = BASE + path
     return f"""<!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
@@ -117,7 +119,7 @@ def item(c, types, dist=None):
     return (f'<li class="item"><span class="stripe" style="background:{COLORS[c["type"]]}"></span><div>'
             f'<div class="meta"><span>{e(c["show"])}</span><span class="t" style="color:{COLORS[c["type"]]}">{e(t["label"])}</span>{d}{badge}</div>'
             f'<div class="place">{e(full(c["pref"]))} {e(c["city"])}</div><p class="desc">{e(c["desc"])}</p>'
-            f'<div class="src">出典：<a href="{e(c["url"])}" target="_blank" rel="noopener">{e(c["src"])}</a></div></div></li>')
+            f'<div class="src">出典：<a href="{e(c["url"] if str(c["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(c["src"])}</a></div></div></li>')
 
 def main():
     D = load(); types = D['TYPES']; places = D['PLACES']; cases = D['CASES']
