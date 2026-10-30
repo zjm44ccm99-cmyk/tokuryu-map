@@ -298,3 +298,11 @@ const POLICE_LINKS={
  "広島":[{name:"広島県警察（X）",url:"https://x.com/HP_maplekun",verify:"https://www.pref.hiroshima.lg.jp/site/police/sns-unyou.html"}]
 };
 
+/* 都道府県警察の連絡先。県警の公式サイト（verify）で確認できた番号だけを載せる。
+   hq=警察本部の代表番号、list=公式サイトの警察署一覧ページ。 */
+const POLICE_CONTACTS={
+ "高知":{hq:"088-826-0110",list:"https://www.police.pref.kochi.lg.jp/category/bumon/police/",verify:"https://www.police.pref.kochi.lg.jp/category/bumon/police/kochi-east/"},
+ "香川":{hq:"087-833-0110",list:"https://www.pref.kagawa.lg.jp/police/kenkei/renrakusaki.html",verify:"https://www.pref.kagawa.lg.jp/police/kenkei/renrakusaki.html"},
+ "東京":{hq:"03-3581-4321",list:"https://www.keishicho.metro.tokyo.lg.jp/about_mpd/shokai/ichiran/index.html",verify:"https://www.keishicho.metro.tokyo.lg.jp/oshirase/honbu_call.html"}
+};
+

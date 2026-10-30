@@ -34,7 +34,7 @@ def load():
     js = r"""
 const fs=require('fs'),vm=require('vm');
 const ctx={};vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[]),POLICE_LINKS:(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{})};',ctx);
+vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[]),POLICE_LINKS:(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{}),POLICE_CONTACTS:(typeof POLICE_CONTACTS!=="undefined"?POLICE_CONTACTS:{})};',ctx);
 process.stdout.write(JSON.stringify(ctx.__d));
 """
     out = subprocess.run(['node','-e',js,os.path.join(ROOT,'data.js')],capture_output=True,text=True,check=True).stdout
@@ -166,6 +166,14 @@ def main():
         parts.append('<ol>'+''.join(item(c,types,d) for c,d in near)+'</ol>' if near else
                      '<p class="empty">周辺150km以内で、直近1年に掲載している事件はありません。</p>')
         parts.append('</section>')
+        pc = D.get('POLICE_CONTACTS', {}).get(name)
+        if pc:
+            okurl = lambda u: u if str(u).startswith('https://') else '#'
+            parts.append(f'<section class="panel"><h2>{e(fn)}警察の連絡先</h2>'
+                         f'<div class="call"><div><b>{e(pc["hq"])}</b><span>{e(fn)}警察本部（代表）</span></div>'
+                         f'<div><b>#9110</b><span>警察相談専用電話（全国共通）</span></div>'
+                         f'<div><b>110</b><span>いま危ない、事件が起きている</span></div></div>'
+                         f'<p class="note" style="margin-top:10px">警察を名乗る電話を確かめるときは、着信画面に出た番号ではなく、この番号か<a href="{e(okurl(pc["list"]))}" target="_blank" rel="noopener noreferrer">公式サイトの警察署一覧</a>にある番号へ、自分から掛け直してください。番号は県警の公式サイトで確認しています（<a href="{e(okurl(pc["verify"]))}" target="_blank" rel="noopener noreferrer">確認元</a>）。</p></section>')
         pls = D.get('POLICE_LINKS', {}).get(name, [])
         if pls:
             parts.append(f'<section class="panel"><h2>{e(fn)}警察の公式発信</h2><p class="note">最新の予兆電話や事件の速報は、警察の公式SNSが最も早く出します。県警の公式サイトでリンクを確認したものだけを載せています。</p><div class="btns">'

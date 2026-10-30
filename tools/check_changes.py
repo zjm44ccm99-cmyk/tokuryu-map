@@ -17,7 +17,7 @@ for f in sorted(changed):
 
 js = r"""
 const fs=require('fs'),vm=require('vm');const ctx={};vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[]),POLICE_LINKS:(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{})};',ctx);
+vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[]),POLICE_LINKS:(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{}),POLICE_CONTACTS:(typeof POLICE_CONTACTS!=="undefined"?POLICE_CONTACTS:{})};',ctx);
 process.stdout.write(JSON.stringify(ctx.__d));"""
 try:
     D = json.loads(subprocess.run(['node', '-e', js, os.path.join(ROOT, 'data.js')],
@@ -62,6 +62,13 @@ for pref, links in D.get('POLICE_LINKS', {}).items():
         if not v.startswith('https://') or not OFFICIAL.search(hv):
             problems.append(f'POLICE_LINKS {pref}: verify は警察・自治体の公式サイトのURLが必要: {v}')
         if re.search(r'<|>|javascript:', str(l.get('name', ''))): problems.append(f'POLICE_LINKS {pref}: name が不正')
+
+for pref, c in D.get('POLICE_CONTACTS', {}).items():
+    if not re.match(r'^0\d{1,4}-\d{1,4}-\d{4}$', str(c.get('hq', ''))): problems.append(f'POLICE_CONTACTS {pref}: 代表番号の形式が不正')
+    for k in ('list', 'verify'):
+        u = str(c.get(k, '')); h = urlparse(u).hostname or ''
+        if not u.startswith('https://') or not OFFICIAL.search(h):
+            problems.append(f'POLICE_CONTACTS {pref}: {k} は警察・自治体の公式サイトのURLが必要: {u}')
 
 try:
     src = json.load(open(os.path.join(ROOT, 'alert_sources.json')))

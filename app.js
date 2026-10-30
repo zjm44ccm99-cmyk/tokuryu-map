@@ -105,7 +105,10 @@ function renderNear(){
 const SLUG={"北海道":"hokkaido","青森":"aomori","岩手":"iwate","宮城":"miyagi","秋田":"akita","山形":"yamagata","福島":"fukushima","茨城":"ibaraki","栃木":"tochigi","群馬":"gunma","埼玉":"saitama","千葉":"chiba","東京":"tokyo","神奈川":"kanagawa","新潟":"niigata","富山":"toyama","石川":"ishikawa","福井":"fukui","山梨":"yamanashi","長野":"nagano","岐阜":"gifu","静岡":"shizuoka","愛知":"aichi","三重":"mie","滋賀":"shiga","京都":"kyoto","大阪":"osaka","兵庫":"hyogo","奈良":"nara","和歌山":"wakayama","鳥取":"tottori","島根":"shimane","岡山":"okayama","広島":"hiroshima","山口":"yamaguchi","徳島":"tokushima","香川":"kagawa","愛媛":"ehime","高知":"kochi","福岡":"fukuoka","佐賀":"saga","長崎":"nagasaki","熊本":"kumamoto","大分":"oita","宮崎":"miyazaki","鹿児島":"kagoshima","沖縄":"okinawa"};
 const prefLink=p=>window.PREF_PAGES&&SLUG[p]?` ／ <a href="pref/${SLUG[p]}.html">${fullName(p)}のページを見る</a>`:"";
 const PL=(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{});
-const policeLinks=p=>(PL[p]&&PL[p].length)?`<p class="plinks">最新の速報は警察の公式発信で：${PL[p].map(l=>`<a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer">${esc(l.name)}</a>`).join(" ／ ")}<span class="hint">（県警の公式サイトでリンクを確認済み）</span></p>`:"";
+const PC=(typeof POLICE_CONTACTS!=="undefined"?POLICE_CONTACTS:{});
+const policeContact=p=>PC[p]?`<p class="plinks">${fullName(p)}警察本部（代表）<b style="user-select:all">${esc(PC[p].hq)}</b> ／ <a href="${esc(safeUrl(PC[p].list))}" target="_blank" rel="noopener noreferrer">警察署一覧</a><span class="hint">（警察を名乗る電話は、この番号に自分から掛け直して確認）</span></p>`:"";
+const policeLinks=p=>policeContact(p)+_policeLinks(p);
+const _policeLinks=p=>(PL[p]&&PL[p].length)?`<p class="plinks">最新の速報は警察の公式発信で：${PL[p].map(l=>`<a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer">${esc(l.name)}</a>`).join(" ／ ")}<span class="hint">（県警の公式サイトでリンクを確認済み）</span></p>`:"";
 function topKinds(rows){const n={};rows.forEach(x=>n[x.c.type]=(n[x.c.type]||0)+1);
   return Object.entries(n).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${TYPES[k].label}（${v}件）`).join("、");}
 
