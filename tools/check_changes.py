@@ -17,7 +17,7 @@ for f in sorted(changed):
 
 js = r"""
 const fs=require('fs'),vm=require('vm');const ctx={};vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[])};',ctx);
+vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[]),POLICE_LINKS:(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{})};',ctx);
 process.stdout.write(JSON.stringify(ctx.__d));"""
 try:
     D = json.loads(subprocess.run(['node', '-e', js, os.path.join(ROOT, 'data.js')],
@@ -50,6 +50,18 @@ for i, x in enumerate(D.get('ALERTS', [])):
         if re.search(r'<|>|javascript:|data:|on\w+=', v, re.I): problems.append(f'{tag}: {k} にHTMLやスクリプトのような文字列がある')
     if re.search(r'@[\w.-]+\.\w+|\d{2,4}-\d{2,4}-\d{3,4}|0\d{9,10}', str(x.get('desc', ''))):
         problems.append(f'{tag}: 説明にメールアドレスや電話番号のようなものがある')
+
+from urllib.parse import urlparse
+OFFICIAL = re.compile(r'(\.lg\.jp|\.go\.jp|keishicho\.metro\.tokyo\.lg\.jp|^www\.police\.pref\.[a-z]+\.(lg\.)?jp|^www\.pref\.[a-z]+\.(lg\.)?jp)$')
+for pref, links in D.get('POLICE_LINKS', {}).items():
+    for l in links:
+        u, v = str(l.get('url', '')), str(l.get('verify', ''))
+        hu, hv = urlparse(u).hostname or '', urlparse(v).hostname or ''
+        if not u.startswith('https://') or not (hu in ('x.com', 'twitter.com') or OFFICIAL.search(hu)):
+            problems.append(f'POLICE_LINKS {pref}: url は x.com か警察・自治体の公式サイトだけ: {u}')
+        if not v.startswith('https://') or not OFFICIAL.search(hv):
+            problems.append(f'POLICE_LINKS {pref}: verify は警察・自治体の公式サイトのURLが必要: {v}')
+        if re.search(r'<|>|javascript:', str(l.get('name', ''))): problems.append(f'POLICE_LINKS {pref}: name が不正')
 
 try:
     src = json.load(open(os.path.join(ROOT, 'alert_sources.json')))

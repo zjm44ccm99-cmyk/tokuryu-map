@@ -284,3 +284,17 @@ const ALERTS=[
   desc:"杉戸警察署の管内で、特殊詐欺の予兆電話が確認されている。",
   src:"埼玉県警察",url:"https://www.police.pref.saitama.lg.jp/p0380/kenke/sugitosagi20271009.html"}
 ];
+
+/* 都道府県警察の公式SNS。県警の公式サイト（verify）でリンクが確認できたものだけを載せる。
+   url は x.com のアカウントか、県警公式サイトの案内ページ。 */
+const POLICE_LINKS={
+ "高知":[{name:"高知県警察（X）",url:"https://x.com/kochi_police",verify:"https://www.police.pref.kochi.lg.jp/docs/2023103100284/file_contents/20231001_X_policy.pdf"}],
+ "東京":[{name:"警視庁生活安全部（X）",url:"https://x.com/MPD_yokushi",verify:"https://www.keishicho.metro.tokyo.lg.jp/about_mpd/joho/sns/t_list.html"},
+         {name:"警視庁の公式SNS一覧（匿流対策本部など）",url:"https://www.keishicho.metro.tokyo.lg.jp/about_mpd/joho/sns/t_list.html",verify:"https://www.keishicho.metro.tokyo.lg.jp/about_mpd/joho/sns/t_list.html"}],
+ "神奈川":[{name:"神奈川県警 特殊詐欺の注意喚起（X）",url:"https://x.com/KPP_tokusyusagi",verify:"https://www.police.pref.kanagawa.jp/about_kpp/koho/sns/twitter_list.html"},
+           {name:"神奈川県警 犯罪抑止対策室（X）",url:"https://x.com/KPP_yokushi",verify:"https://www.police.pref.kanagawa.jp/about_kpp/koho/sns/twitter_list.html"}],
+ "愛知":[{name:"愛知県警 特殊詐欺の被害防止（X）",url:"https://x.com/AP_seiants",verify:"https://www.pref.aichi.jp/police/twitter/index.html"}],
+ "京都":[{name:"京都府警 特殊詐欺対策のX（公式の案内ページ）",url:"https://www.pref.kyoto.jp/fukei/site/sotai2/twitter/index.html",verify:"https://www.pref.kyoto.jp/fukei/sns.html"}],
+ "広島":[{name:"広島県警察（X）",url:"https://x.com/HP_maplekun",verify:"https://www.pref.hiroshima.lg.jp/site/police/sns-unyou.html"}]
+};
+

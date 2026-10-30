@@ -34,7 +34,7 @@ def load():
     js = r"""
 const fs=require('fs'),vm=require('vm');
 const ctx={};vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[])};',ctx);
+vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[]),POLICE_LINKS:(typeof POLICE_LINKS!=="undefined"?POLICE_LINKS:{})};',ctx);
 process.stdout.write(JSON.stringify(ctx.__d));
 """
     out = subprocess.run(['node','-e',js,os.path.join(ROOT,'data.js')],capture_output=True,text=True,check=True).stdout
@@ -166,6 +166,11 @@ def main():
         parts.append('<ol>'+''.join(item(c,types,d) for c,d in near)+'</ol>' if near else
                      '<p class="empty">周辺150km以内で、直近1年に掲載している事件はありません。</p>')
         parts.append('</section>')
+        pls = D.get('POLICE_LINKS', {}).get(name, [])
+        if pls:
+            parts.append(f'<section class="panel"><h2>{e(fn)}警察の公式発信</h2><p class="note">最新の予兆電話や事件の速報は、警察の公式SNSが最も早く出します。県警の公式サイトでリンクを確認したものだけを載せています。</p><div class="btns">'
+                         + ''.join(f'<a href="{e(l["url"] if str(l["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(l["name"])}</a>' for l in pls)
+                         + '</div></section>')
         parts.append('<section><h2>不審な電話や訪問があったら</h2><div class="call">'
                      '<div><b>110</b><span>不審な人や車がいる、いま危ない</span></div>'
                      '<div><b>#9110</b><span>警察相談専用電話。急ぎでない相談</span></div>'
