@@ -13,7 +13,7 @@
 :root{
   --bg:#f3f5f8; --surface:#ffffff; --fg:#161b24; --muted:#586273; --line:#d6dbe3;
   --sea:#e6edf5; --land:#ffffff; --land-hit:#dfe7f3; --border:#b9c3d1;
-  --murder:#b3261e; --robbery:#c46a10; --theft:#3d6aa8; --fraud:#7a4fa0; --prep:#6b7380;
+  --murder:#b3261e; --robbery:#c46a10; --theft:#3d6aa8; --fraud:#7a4fa0; --prep:#6b7380; --other:#2f8a7a;
   --alert-bg:#fff4e8; --alert-line:#efc79a;
   --focus:#c46a10; --halo:#ffffff; --bar:#3f659e;
   --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
@@ -22,13 +22,13 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
   --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
-  --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1;
+  --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1; --other:#6cc5b3;
   --alert-bg:#2a2016; --alert-line:#6b4a24;
   --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
   --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
-  --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1;
+  --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1; --other:#6cc5b3;
   --alert-bg:#2a2016; --alert-line:#6b4a24;
   --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.7;margin:0}
@@ -110,6 +110,7 @@ ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;ma
 .src{font-size:12px;margin-top:4px}
 .src a,.srcs a{color:var(--muted)}
 .series{font-size:11px;border:1px solid var(--line);border-radius:3px;padding:0 6px}
+.hl{font-size:11px;border:1px dashed var(--muted);border-radius:3px;padding:0 6px;color:var(--muted)}
 .empty{color:var(--muted);font-size:14px;padding:16px 0}
 
 /* 時系列 */
@@ -230,6 +231,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
         <span><i style="background:var(--theft)"></i>窃盗</span>
         <span><i style="background:var(--fraud)"></i>詐欺</span>
         <span><i style="background:var(--prep)"></i>予備・侵入・下見</span>
+        <span><i style="background:var(--other)"></i>その他</span>
         <span><i class="p"></i>直近3か月（波紋）</span>
         <span><i class="v"></i>市区町村不明</span>
       </div>
@@ -254,6 +256,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <ul>
       <li>警察や報道が「匿流（トクリュウ）」「闇バイト」の関与を指摘した事件のうち、出典を確認できたものだけを載せています。全件網羅ではありません。</li>
       <li>日付は発生日（不明な場合は報道時期）。「2024年秋」などは発生日を特定できなかったものです。</li>
+      <li>「見出しで確認」の印がある事件は、記事本文を確認できず、報道の見出しに書かれた場所・種類・匿流の可能性をもとに分類したものです。「報道時期未確認」は報道の時期を確かめられていない事件で、期間を「すべて」にすると表示されます。順次確認して更新します。</li>
       <li>被害者宅の特定につながらないよう、所在地は市区町村単位です。容疑者・被害者の氏名は掲載しません。</li>
       <li>逮捕・起訴の段階の事件を含みます。有罪が確定していない人については無罪推定が働きます。</li>
       <li>地図の境界データ：dataofjapan/land（国土数値情報をもとに作成）。</li>
@@ -671,8 +674,8 @@ document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",(
 function renderTimeline(){
   const months=[];const start=new Date(2024,0,1);
   for(let d=new Date(start);d<=TODAY;d.setMonth(d.getMonth()+1))months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`);
-  const cnt={};CASES.forEach(c=>{const m=c.d.slice(0,7);cnt[m]=(cnt[m]||0)+1;});
-  const older=CASES.filter(c=>c.d<"2024-01").length;
+  const cnt={};CASES.filter(c=>!c.nodate).forEach(c=>{const m=c.d.slice(0,7);cnt[m]=(cnt[m]||0)+1;});
+  const older=CASES.filter(c=>c.d<"2024-01"&&!c.nodate).length;const nod=CASES.filter(c=>c.nodate).length;
   const W=900,H=180,ml=26,mr=8,mt=14,mb=34;const bw=(W-ml-mr)/months.length;
   const max=Math.max(2,...months.map(m=>cnt[m]||0));const ticks=[];for(let i=0;i<=max;i+=max>6?2:1)ticks.push(i);
   const y=v=>H-mb-(v/ticks[ticks.length-1])*(H-mt-mb);
@@ -685,7 +688,7 @@ function renderTimeline(){
     if(mm==="01"||mm==="07")s+=`<text class="axis" x="${x+bw/2}" y="${H-mb+14}" text-anchor="middle">${mm==="01"?yy+"年":""}${+mm}月</text>`;
     s+=`<rect class="hit" x="${x}" y="${mt}" width="${bw}" height="${H-mt-mb}" data-m="${m}" tabindex="${v?0:-1}" role="button" aria-label="${yy}年${+mm}月 ${v}件"><title>${yy}年${+mm}月：${v}件</title></rect>`;});
   s+=`</svg>`;
-  $("timeline").innerHTML=s+(older?`<p class="hint">2023年以前の掲載：${older}件（グラフ外）</p>`:"");
+  $("timeline").innerHTML=s+((older||nod)?`<p class="hint">グラフ外：${older?`2023年以前 ${older}件`:""}${older&&nod?"、":""}${nod?`報道時期未確認 ${nod}件（期間「すべて」で一覧に表示）`:""}</p>`:"");
   $("timeline").querySelectorAll("rect.hit").forEach(r=>{const f=()=>{const m=r.dataset.m;if(!cnt[m])return;state.month=state.month===m?null:m;state.place=null;render();};
     r.addEventListener("click",f);r.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f();}});});
 }
@@ -701,7 +704,7 @@ function render(){
   const rows=CASES.filter(c=>state.place?keyOf(c)===state.place&&(!state.type||c.type===state.type):visible(c)).sort((a,b)=>b.d.localeCompare(a.d));
   $("list").innerHTML=rows.length?rows.map(c=>{const t=TYPES[c.type];
     return `<li class="item"><span class="stripe" style="background:${t.color}"></span><div>
-      <div class="meta"><span>${esc(c.show)}${ageDays(c)<=90?'<span class="new">直近</span>':""}</span><span class="type" style="color:${t.color}">${t.label}</span>${c.series?`<span class="series">${esc(c.series)}</span>`:""}</div>
+      <div class="meta"><span>${esc(c.show)}${ageDays(c)<=90?'<span class="new">直近</span>':""}</span><span class="type" style="color:${t.color}">${t.label}</span>${c.series?`<span class="series">${esc(c.series)}</span>`:""}${c.basis==="headline"?'<span class="hl" title="記事本文を確認できず、報道の見出しで分類した事件">見出しで確認</span>':""}</div>
       <div class="place">${fullName(c.pref)} ${esc(c.city)}</div>
       <p class="desc">${esc(c.desc)}</p>
       <div class="src">出典：<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.src)}</a></div>
