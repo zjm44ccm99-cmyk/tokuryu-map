@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8">
+<style>
+@font-face{font-family:"Dela Gothic One";src:url(fonts/dela-gothic-one-japanese-400-normal.woff2) format("woff2"),url(fonts/dela-gothic-one-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"BIZ UDPGothic";src:url(fonts/biz-udpgothic-japanese-400-normal.woff2) format("woff2"),url(fonts/biz-udpgothic-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"BIZ UDPGothic";src:url(fonts/biz-udpgothic-japanese-700-normal.woff2) format("woff2"),url(fonts/biz-udpgothic-latin-700-normal.woff2) format("woff2");font-weight:700}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#f3f5f8;font-family:"BIZ UDPGothic","Noto Sans CJK JP",sans-serif;color:#161b24}
+.wrap{display:grid;grid-template-columns:600px 600px;height:630px}
+.l{padding:64px 0 56px 72px;display:flex;flex-direction:column;justify-content:space-between}
+.eye{font-size:24px;letter-spacing:.08em;color:#586273}
+h1{font-family:"Dela Gothic One","Noto Sans CJK JP",sans-serif;font-weight:400;font-size:80px;line-height:1.15;margin:18px 0 0}
+.sub{font-size:34px;font-weight:700;margin-top:18px}
+.meta{font-size:24px;color:#586273;line-height:1.6}
+.meta b{color:#c46a10}
+.legend{display:flex;gap:22px;font-size:20px;color:#586273;margin-top:10px}
+.legend i{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+.r{background:#e6edf5;position:relative}
+svg{display:block}
+</style>
+<div class="wrap">
+ <div class="l">
+  <div><div class="eye">匿名・流動型犯罪グループ（匿流）関連事件</div>
+  <h1>トクリュウ<br>事件マップ</h1>
+  <div class="sub">いま、どこで起きているか</div></div>
+  <div><div class="meta">報道をもとに全国の事件を地図と時系列で。<br>手口と対策、警察白書のデータも。</div>
+  <div class="legend"><span><i style="background:#b3261e"></i>強盗殺人</span><span><i style="background:#c46a10"></i>強盗</span><span><i style="background:#3d6aa8"></i>窃盗</span><span><i style="background:#6b7380"></i>予備・下見</span></div></div>
+ </div>
+ <div class="r"><svg id="m" width="600" height="630"></svg></div>
+</div>
+<script src="vendor/d3.min.js"></script><script src="vendor/topojson.min.js"></script><script src="../../japan-topo.js"></script><script src="../../data.js"></script>
+<script>
+const COL={murder:"#b3261e",robbery:"#c46a10",theft:"#3d6aa8",fraud:"#7a4fa0",prep:"#6b7380",other:"#2f8a7a"};
+const geo=topojson.feature(TOPO,TOPO.objects.japan);
+const feats=geo.features.filter(f=>f.properties.nam_ja!=="沖縄県");
+const proj=d3.geoMercator().fitExtent([[20,24],[580,606]],{type:"Feature",geometry:{type:"MultiPoint",coordinates:[[129.6,31.0],[145.6,45.5]]}});
+const path=d3.geoPath(proj);const s=d3.select("#m");
+s.append("g").selectAll("path").data(feats).join("path").attr("d",path).attr("fill","#fff").attr("stroke","#b9c3d1").attr("stroke-width",.8);
+const g={};CASES.filter(c=>!c.nodate&&c.pref!=="沖縄").forEach(c=>{const k=c.pref+"|"+c.city;(g[k]=g[k]||[]).push(c);});
+const rank={murder:5,robbery:4,theft:3,fraud:3,prep:2,other:1};
+Object.entries(g).sort((a,b)=>a[1].length-b[1].length).forEach(([k,l])=>{const p=PLACES[k];const [x,y]=proj([p[1],p[0]]);
+ const top=l.reduce((a,c)=>rank[c.type]>rank[a]?c.type:a,l[0].type);
+ s.append("circle").attr("cx",x).attr("cy",y).attr("r",5+Math.sqrt(l.length)*3.2).attr("fill",COL[top]).attr("stroke","#fff").attr("stroke-width",1.6).attr("fill-opacity",p[2]?.35:1);});
+</script>

@@ -37,6 +37,11 @@
 ## 3-2. 警察白書（年1回）
 - 「データ」ページの数字は警察白書（警察庁、例年7月ごろ公表）による。新しい版が出ていたら `index.html` の「データ」ページと `WP_CRIME` `WP_AGE` `WP_FRAUD` を更新対象として報告する（勝手に書き換えず、数値と出典ページを報告に書く）。
 
+## 3-3. SNS共有用の画像（毎月1日）
+- 実行日が毎月1日（日本時間）のときだけ、`python3 tools/og/render.py` を実行して `og.png` を作り直す（地図のピンが最新の事件になる）。
+- playwright が無ければ `pip install --break-system-packages playwright && python3 -m playwright install chromium` を先に実行する。失敗したら og.png は変えずに、報告に失敗したことを書く。
+- `tools/og/` の中身（フォントやレイアウト）は変更しない。
+
 ## 4. 仕上げ
 - `UPDATED` を今日の日付にする。
 - `node --check data.js` で文法を確認し、すべての `CASES` の `pref|city` が `PLACES` にあることを確かめる。
