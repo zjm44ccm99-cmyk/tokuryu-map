@@ -42,6 +42,9 @@
 - playwright が無ければ `pip install --break-system-packages playwright && python3 -m playwright install chromium` を先に実行する。失敗したら og.png は変えずに、報告に失敗したことを書く。
 - `tools/og/` の中身（フォントやレイアウト）は変更しない。
 
+## 3-4. 都道府県別ページ
+- data.js を変更したら、必ず `python3 tools/gen_pages.py` を実行して `pref/`、`sitemap.xml`、`robots.txt` を作り直し、一緒にコミットする。`pref/` のファイルを手で編集しない。
+
 ## 4. 仕上げ
 - `UPDATED` を今日の日付にする。
 - `node --check data.js` で文法を確認し、すべての `CASES` の `pref|city` が `PLACES` にあることを確かめる。

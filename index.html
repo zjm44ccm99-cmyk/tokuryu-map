@@ -191,6 +191,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <a href="#teguchi" data-nav="teguchi">手口を知る</a>
     <a href="#taisaku" data-nav="taisaku">対策する</a>
     <a href="#data" data-nav="data">データ</a>
+    <a href="pref/">都道府県別</a>
   </nav>
 </div></div>
 
@@ -524,6 +525,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
 <script src="japan-topo.js"></script>
 <script src="data.js"></script>
 <script>
+window.PREF_PAGES=true;
 
 const SUFFIX={"北海道":"","東京":"都","大阪":"府","京都":"府"};
 const fullName=p=>p+(p in SUFFIX?SUFFIX[p]:"県");
@@ -598,12 +600,14 @@ function renderNear(){
   const c0=PREF_C[state.home];
   const rows=CASES.map(c=>({c,dist:km(c0,lonlat(c))})).filter(x=>x.dist<=150&&ageDays(x.c)<=365).sort((a,b)=>a.dist-b.dist);
   const recent=rows.filter(x=>ageDays(x.c)<=90).length;
-  if(!rows.length){$("nearBody").innerHTML=`<p>${fullName(state.home)}の周辺150km以内では、直近1年に掲載中の事件はありません。掲載は報道で確認できたものに限られるため、被害がないという意味ではありません。</p>`;return;}
+  if(!rows.length){$("nearBody").innerHTML=`<p>${fullName(state.home)}の周辺150km以内では、直近1年に掲載中の事件はありません。掲載は報道で確認できたものに限られるため、被害がないという意味ではありません。${prefLink(state.home)}</p>`;return;}
   $("nearBody").innerHTML=`<p><b>${fullName(state.home)}の周辺150km以内で、直近1年に${rows.length}件</b>（うち直近3か月に${recent}件）。</p>
    <ul>${rows.slice(0,6).map(x=>`<li><button class="link" data-k="${esc(keyOf(x.c))}">${fullName(x.c.pref)} ${esc(x.c.city)}</button>（約${Math.round(x.dist/10)*10}km）${esc(x.c.show)}・${TYPES[x.c.type].label}</li>`).join("")}</ul>
-   <p style="font-size:13px">近くで続いているのは、${topKinds(rows)}です。<a href="#taisaku">対策を見る</a></p>`;
+   <p style="font-size:13px">近くで続いているのは、${topKinds(rows)}です。<a href="#taisaku">対策を見る</a>${prefLink(state.home)}</p>`;
   $("nearBody").querySelectorAll("button.link").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.k)));
 }
+const SLUG={"北海道":"hokkaido","青森":"aomori","岩手":"iwate","宮城":"miyagi","秋田":"akita","山形":"yamagata","福島":"fukushima","茨城":"ibaraki","栃木":"tochigi","群馬":"gunma","埼玉":"saitama","千葉":"chiba","東京":"tokyo","神奈川":"kanagawa","新潟":"niigata","富山":"toyama","石川":"ishikawa","福井":"fukui","山梨":"yamanashi","長野":"nagano","岐阜":"gifu","静岡":"shizuoka","愛知":"aichi","三重":"mie","滋賀":"shiga","京都":"kyoto","大阪":"osaka","兵庫":"hyogo","奈良":"nara","和歌山":"wakayama","鳥取":"tottori","島根":"shimane","岡山":"okayama","広島":"hiroshima","山口":"yamaguchi","徳島":"tokushima","香川":"kagawa","愛媛":"ehime","高知":"kochi","福岡":"fukuoka","佐賀":"saga","長崎":"nagasaki","熊本":"kumamoto","大分":"oita","宮崎":"miyazaki","鹿児島":"kagoshima","沖縄":"okinawa"};
+const prefLink=p=>window.PREF_PAGES&&SLUG[p]?` ／ <a href="pref/${SLUG[p]}.html">${fullName(p)}のページを見る</a>`:"";
 function topKinds(rows){const n={};rows.forEach(x=>n[x.c.type]=(n[x.c.type]||0)+1);
   return Object.entries(n).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${TYPES[k].label}（${v}件）`).join("、");}
 

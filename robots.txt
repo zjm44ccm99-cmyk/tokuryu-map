@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://zjm44ccm99-cmyk.github.io/tokuryu-map/sitemap.xml
