@@ -582,7 +582,8 @@ function topKinds(rows){const n={};rows.forEach(x=>n[x.c.type]=(n[x.c.type]||0)+
   return Object.entries(n).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${TYPES[k].label}（${v}件）`).join("、");}
 
 /* 地図 */
-let pinSel,ringSel,lblSel,prefSel,zoomer,svg,proj,goView;
+let pinSel,ringSel,lblSel,prefSel,zoomer,svg,proj,projOki,goView;
+const projAll=(ll,pref)=>pref==="沖縄"&&projOki?projOki(ll):proj(ll);
 function drawMap(){
   if(!window.d3||!window.topojson||!TOPO){$("map").outerHTML='<p class="empty" style="padding:16px">地図を読み込めませんでした。右のリストから事件を確認できます。</p>';return;}
   svg=d3.select("#map");const W=800,H=800;
@@ -591,8 +592,21 @@ function drawMap(){
   const path=d3.geoPath(proj);
   const g=svg.append("g");
   const hit=new Set(CASES.map(c=>fullName(c.pref)));
+  /* 沖縄県は左上の枠（インセット）に縮尺を変えて表示 */
+  const oki=geo.features.find(f=>f.properties.nam_ja==="沖縄県");
+  const box=[[24,24],[420,268]];
+  if(oki){
+    projOki=d3.geoMercator().fitExtent([[box[0][0]+8,box[0][1]+22],[box[1][0]-8,box[1][1]-8]],{type:"Feature",geometry:{type:"MultiPoint",coordinates:[[123.6,24.05],[128.4,27.05]]}});
+    svg.append("defs").append("clipPath").attr("id","okiclip").append("rect").attr("x",box[0][0]).attr("y",box[0][1]).attr("width",box[1][0]-box[0][0]).attr("height",box[1][1]-box[0][1]);
+    g.append("rect").attr("x",box[0][0]).attr("y",box[0][1]).attr("width",box[1][0]-box[0][0]).attr("height",box[1][1]-box[0][1])
+      .attr("fill","none").attr("stroke","var(--border)").attr("stroke-dasharray","4 3").attr("vector-effect","non-scaling-stroke");
+    g.append("text").attr("x",box[0][0]+8).attr("y",box[0][1]+16).attr("class","axis").style("font","11px var(--body)").style("fill","var(--muted)").text("沖縄県（縮尺・位置を変えて表示。与那国島・大東諸島などは省略）");
+  }
+  const pathOki=projOki?d3.geoPath(projOki):path;
   prefSel=g.append("g").selectAll("path").data(geo.features).join("path")
-    .attr("class",d=>"pref"+(hit.has(d.properties.nam_ja)?" has":"")).attr("d",path);
+    .attr("class",d=>"pref"+(hit.has(d.properties.nam_ja)?" has":""))
+    .attr("d",d=>d.properties.nam_ja==="沖縄県"?pathOki(d):path(d))
+    .attr("clip-path",d=>d.properties.nam_ja==="沖縄県"?"url(#okiclip)":null);
   prefSel.append("title").text(d=>d.properties.nam_ja);
   g.append("g").attr("class","pins");
   svg.node().__g=g;
@@ -605,7 +619,7 @@ function drawMap(){
     document.querySelectorAll("[data-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.view===v)));
     const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const t=reduce?svg:svg.transition().duration(600);
-    if(center){const [x,y]=proj(center);t.call(zoomer.transform,d3.zoomIdentity.translate(W/2,H/2).scale(9).translate(-x,-y));return;}
+    if(center){const [x,y]=center;t.call(zoomer.transform,d3.zoomIdentity.translate(W/2,H/2).scale(9).translate(-x,-y));return;}
     if(!views[v]){t.call(zoomer.transform,d3.zoomIdentity);return;}
     const [[a,b],[c,d2]]=views[v];const [x0,y0]=proj([a,d2]),[x1,y1]=proj([c,b]);
     const k=Math.min(W/(x1-x0),H/(y1-y0))*0.92;
@@ -628,7 +642,7 @@ function renderMapState(){
   const g=svg.node().__g.select("g.pins");
   const groups={};CASES.filter(visible).forEach(c=>{(groups[keyOf(c)]=groups[keyOf(c)]||[]).push(c);});
   const rank=list=>list.reduce((a,c)=>TYPES[c.type].rank>TYPES[a].rank?c.type:a,list[0].type);
-  const pins=Object.entries(groups).map(([k,list])=>{const p=PLACES[k];const [x,y]=proj([p[1],p[0]]);
+  const pins=Object.entries(groups).map(([k,list])=>{const p=PLACES[k];const [x,y]=projAll([p[1],p[0]],k.split("|")[0]);
     return {k,list,x,y,vague:!!p[2],top:rank(list),n:list.length,recent:list.some(c=>ageDays(c)<=90)};}).sort((a,b)=>b.n-a.n);
   g.selectAll("*").remove();
   ringSel=g.selectAll("circle.ring").data(pins.filter(d=>d.recent)).join("circle").attr("class","ring")
@@ -648,7 +662,7 @@ function gotoPlace(k){
   state.place=k;state.month=null;state.period=0;state.type=null;
   if(location.hash&&location.hash!=="#now"){location.hash="now";}
   render();
-  const p=PLACES[k];if(goView)goView(null,[p[1],p[0]]);
+  const p=PLACES[k];if(goView&&proj)goView(null,projAll([p[1],p[0]],k.split("|")[0]));
   document.querySelector(".main").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
 }
 document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.goto)));
