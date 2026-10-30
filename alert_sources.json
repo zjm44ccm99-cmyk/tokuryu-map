@@ -1,0 +1,169 @@
+{
+  "_説明": "警察の注意情報（予兆電話など）の情報源一覧。daily=毎日確認する構造化ページ。rotation=47都道府県を8県ずつ交代で検索する（group 0〜5、日付の通し日数 % 6 の group を検索）。url が空の県はニュース検索で補う。新しく見つけた公式ページは url と note に追記してよい。 市区町村のホームページが県警の予兆電話情報を転載していることが多いので、rotation の検索では「〇〇市 防犯情報 詐欺電話」のような市町村ページも探す。",
+  "daily": [
+    {
+      "pref": "埼玉",
+      "url": "https://www.police.pref.saitama.lg.jp/",
+      "note": "警察署ごとに「特殊詐欺予兆電話情報（○月○日～○月○日）」を週1回公開。丁目単位・名乗り別の件数。サイト内で最新週を検索して確認する"
+    },
+    {
+      "pref": "大阪",
+      "url": "https://www.police.pref.osaka.lg.jp/seikatsu/tokusyusagi/apoden/20421.html",
+      "note": "アポ電（予兆電話）の情報ページ"
+    },
+    {
+      "pref": "和歌山",
+      "url": "https://www.police.pref.wakayama.lg.jp/",
+      "note": "報道発表に予兆電話の発生状況（PDF）を掲載することがある（例：14_press/documents/R70410_seiki_yocyodennwa.pdf）"
+    },
+    {
+      "pref": "神奈川",
+      "url": "",
+      "note": "県警が「特殊詐欺警報」を発表し、tvk などが報道する。ニュース検索「特殊詐欺警報 神奈川」で確認"
+    },
+    {
+      "pref": "兵庫",
+      "url": "https://www.nishi.or.jp/kurashi/anshin/bohanjoho/chui/bouhannjouhou.html",
+      "note": "西宮市。兵庫県警の発表をもとに、日付・町名・名乗り別の予兆電話をほぼ毎日掲載"
+    },
+    {
+      "pref": "神奈川",
+      "url": "https://chigasaki-city.site.ktaiwork.jp/",
+      "note": "茅ヶ崎市の防犯情報（茅ヶ崎警察署の情報を配信）"
+    },
+    {
+      "pref": "大阪",
+      "url": "https://www.city.hirakata.osaka.jp/kikikanri/0000034008.html",
+      "note": "枚方市「市域内でアポ電が発生しています」の速報ページ"
+    }
+  ],
+  "rotation": [
+    {
+      "group": 0,
+      "prefs": [
+        "北海道",
+        "青森",
+        "岩手",
+        "宮城",
+        "秋田",
+        "山形",
+        "福島",
+        "茨城"
+      ]
+    },
+    {
+      "group": 1,
+      "prefs": [
+        "栃木",
+        "群馬",
+        "埼玉",
+        "千葉",
+        "東京",
+        "神奈川",
+        "新潟",
+        "富山"
+      ]
+    },
+    {
+      "group": 2,
+      "prefs": [
+        "石川",
+        "福井",
+        "山梨",
+        "長野",
+        "岐阜",
+        "静岡",
+        "愛知",
+        "三重"
+      ]
+    },
+    {
+      "group": 3,
+      "prefs": [
+        "滋賀",
+        "京都",
+        "大阪",
+        "兵庫",
+        "奈良",
+        "和歌山",
+        "鳥取",
+        "島根"
+      ]
+    },
+    {
+      "group": 4,
+      "prefs": [
+        "岡山",
+        "広島",
+        "山口",
+        "徳島",
+        "香川",
+        "愛媛",
+        "高知",
+        "福岡"
+      ]
+    },
+    {
+      "group": 5,
+      "prefs": [
+        "佐賀",
+        "長崎",
+        "熊本",
+        "大分",
+        "宮崎",
+        "鹿児島",
+        "沖縄"
+      ]
+    }
+  ],
+  "known_pages": {
+    "北海道": {
+      "url": "https://www.police.pref.hokkaido.lg.jp/",
+      "note": "署ごとの広報紙PDFに予兆電話の記載あり"
+    },
+    "宮城": {
+      "url": "https://www.police.pref.miyagi.jp/seian/",
+      "note": "生活安全のニュース（PDF）に予兆電話の記載あり"
+    },
+    "福島": {
+      "url": "https://www.police.pref.fukushima.jp/",
+      "note": "なりすまし被害状況のPDFあり"
+    },
+    "茨城": {
+      "url": "https://www.pref.ibaraki.jp/kenkei/",
+      "note": "署ごとのお知らせページあり"
+    },
+    "山梨": {
+      "url": "https://www.pref.yamanashi.jp/police/kurashi/sagi/index.html",
+      "note": "電話詐欺のページ"
+    },
+    "高知": {
+      "url": "https://www.police.pref.kochi.lg.jp/",
+      "note": "予兆電話の専用ページは未確認"
+    },
+    "大分": {
+      "url": "",
+      "note": "予兆電話の音声を公開したことがある（報道）"
+    },
+    "大阪": {
+      "url": "https://www.police.pref.osaka.lg.jp/seikatsu/tokusyusagi/apoden/23315.html",
+      "note": "府内のアポ電等の認知件数（年別）。警察署別ページにも「アポ電に注意」の速報が出る"
+    },
+    "兵庫": {
+      "url": "https://www.police.pref.hyogo.lg.jp/tokusyusagi/nisepolice/index.htm",
+      "note": "ニセ警察詐欺の注意ページ"
+    },
+    "奈良": {
+      "url": "",
+      "note": "県警の情報サイト「ならナビ」で詐欺が疑われる電話の件数を週ごとに紹介。NHK奈良の「アカン！特殊詐欺」で毎週報道"
+    },
+    "島根": {
+      "url": "https://www.pref.shimane.lg.jp/police/emergency/sagi_chui.html",
+      "note": "ニセ警察を名乗る詐欺電話の注意ページ（掲載日の記載なし）"
+    },
+    "滋賀": {
+      "url": "https://www.pref.shiga.lg.jp/police/seikatu/seikatu/anmachi/314702.html",
+      "note": "国勢調査を装った不審電話の注意ページ"
+    }
+  }
+}

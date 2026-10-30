@@ -3,7 +3,7 @@
 import json, os, re, subprocess, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-ALLOWED = re.compile(r'^(data\.js|og\.png|sitemap\.xml|robots\.txt|pref/[a-z]+\.html|pref/index\.html)$')
+ALLOWED = re.compile(r'^(data\.js|alert_sources\.json|og\.png|sitemap\.xml|robots\.txt|pref/[a-z]+\.html|pref/index\.html)$')
 problems = []
 
 def git(*a):
@@ -50,6 +50,14 @@ for i, x in enumerate(D.get('ALERTS', [])):
         if re.search(r'<|>|javascript:|data:|on\w+=', v, re.I): problems.append(f'{tag}: {k} にHTMLやスクリプトのような文字列がある')
     if re.search(r'@[\w.-]+\.\w+|\d{2,4}-\d{2,4}-\d{3,4}|0\d{9,10}', str(x.get('desc', ''))):
         problems.append(f'{tag}: 説明にメールアドレスや電話番号のようなものがある')
+
+try:
+    src = json.load(open(os.path.join(ROOT, 'alert_sources.json')))
+    for x in src.get('daily', []) + list(src.get('known_pages', {}).values()):
+        u = x.get('url', '')
+        if u and not u.startswith('https://'): problems.append(f'alert_sources.json: https 以外のURL {u}')
+except Exception as ex:
+    problems.append(f'alert_sources.json を読み込めない: {ex}')
 
 if problems:
     print('安全確認で止めました：'); [print(' -', p) for p in problems]; sys.exit(1)
