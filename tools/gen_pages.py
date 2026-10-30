@@ -34,7 +34,7 @@ def load():
     js = r"""
 const fs=require('fs'),vm=require('vm');
 const ctx={};vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES};',ctx);
+vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[])};',ctx);
 process.stdout.write(JSON.stringify(ctx.__d));
 """
     out = subprocess.run(['node','-e',js,os.path.join(ROOT,'data.js')],capture_output=True,text=True,check=True).stdout
@@ -51,10 +51,10 @@ def to_date(s):
 e = lambda s: html.escape(str(s), quote=True)
 
 CSS = """:root{--bg:#f3f5f8;--surface:#fff;--fg:#161b24;--muted:#586273;--line:#d6dbe3;--focus:#c46a10;
---murder:#b3261e;--robbery:#c46a10;--theft:#3d6aa8;--fraud:#7a4fa0;--prep:#6b7380;--other:#2f8a7a;
+--murder:#b3261e;--robbery:#c46a10;--theft:#3d6aa8;--fraud:#7a4fa0;--prep:#6b7380;--other:#2f8a7a;--warn:#c2185b;
 --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;--body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic","Meiryo",sans-serif}
 @media (prefers-color-scheme:dark){:root{--bg:#11151c;--surface:#181e27;--fg:#e7ebf1;--muted:#9aa5b5;--line:#2b3442;--focus:#e9963f;
---murder:#ef6b5f;--robbery:#e9963f;--theft:#7aa3e0;--fraud:#b791dc;--prep:#9aa3b1;--other:#6cc5b3;color-scheme:dark}}
+--murder:#ef6b5f;--robbery:#e9963f;--theft:#7aa3e0;--fraud:#b791dc;--prep:#9aa3b1;--other:#6cc5b3;--warn:#f06292;color-scheme:dark}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.7}
 a{color:inherit}a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .top{background:var(--surface);border-bottom:1px solid var(--line)}
@@ -123,6 +123,7 @@ def item(c, types, dist=None):
 
 def main():
     D = load(); types = D['TYPES']; places = D['PLACES']; cases = D['CASES']
+    alerts = [x for x in D.get('ALERTS', []) if (x['pref']+'|'+x['city']) in places]
     today = to_date(D['UPDATED'])
     os.makedirs(os.path.join(ROOT,'pref'), exist_ok=True)
     def coord(c): p = places[c['pref']+'|'+c['city']]; return (p[0], p[1])
@@ -137,6 +138,9 @@ def main():
         near = sorted([(c, km((lat,lon), coord(c))) for c in cases if c['pref']!=name and age(c)<=365],
                       key=lambda x: x[1])
         near = [x for x in near if x[1] <= 150][:12]
+        al = sorted([(x, km((lat,lon), tuple(places[x['pref']+'|'+x['city']][:2]))) for x in alerts
+                     if (today - to_date(x['d'])).days <= 30], key=lambda y: y[1])
+        al = [y for y in al if y[1] <= 150]
         title = f"{fn}のトクリュウ事件｜トクリュウ事件マップ"
         if own:
             desc = f"{fn}で報じられたトクリュウ（匿名・流動型犯罪グループ）・闇バイト関連の事件{len(own)}件を、時期・市区町村・手口とともにまとめています。近隣の事件と相談先も。"
@@ -154,6 +158,10 @@ def main():
         parts.append('<ol>'+''.join(item(c,types) for c in own)+'</ol>' if own else
                      f'<p class="empty">{e(fn)}の事件はまだ掲載していません。報道で確認できたものに限っているためで、被害がないという意味ではありません。</p>')
         parts.append('</section>')
+        if al:
+            parts.append(f'<section class="panel" style="border-left:4px solid var(--warn)"><h2>警察の注意情報（周辺150km・{e(D["UPDATED"])}までの30日）</h2><p class="note">予兆電話や不審な電話・訪問の多発など。事件の前触れになりやすい情報です。</p><ol>'
+                         + ''.join(f'<li class="item"><span class="stripe" style="background:var(--warn)"></span><div><div class="meta"><span>{e(x["d"])}</span><span class="t" style="color:var(--warn)">{e(x["kind"])}</span><span>約{round(d/10)*10}km</span>{"<span class=\"hl\">見出しで確認</span>" if x.get("basis")=="headline" else ""}</div><div class="place">{e(full(x["pref"]))} {e(x["city"])}</div><p class="desc">{e(x["desc"])}</p><div class="src">出典：<a href="{e(x["url"] if str(x["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(x["src"])}</a></div></div></li>' for x, d in al)
+                         + '</ol></section>')
         parts.append(f'<section class="panel"><h2>周辺の事件（{e(fn)}の県庁所在地から150km以内・直近1年）</h2>')
         parts.append('<ol>'+''.join(item(c,types,d) for c,d in near)+'</ol>' if near else
                      '<p class="empty">周辺150km以内で、直近1年に掲載している事件はありません。</p>')

@@ -17,7 +17,7 @@ for f in sorted(changed):
 
 js = r"""
 const fs=require('fs'),vm=require('vm');const ctx={};vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES};',ctx);
+vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__d={UPDATED,TYPES,PLACES,CASES,ALERTS:(typeof ALERTS!=="undefined"?ALERTS:[])};',ctx);
 process.stdout.write(JSON.stringify(ctx.__d));"""
 try:
     D = json.loads(subprocess.run(['node', '-e', js, os.path.join(ROOT, 'data.js')],
@@ -38,6 +38,17 @@ for i, c in enumerate(D['CASES']):
         if k == 'desc' and len(v) > 200:
             problems.append(f'{tag}: 説明が長すぎる（200字超）')
     if re.search(r'@[\w.-]+\.\w+|\d{2,4}-\d{2,4}-\d{3,4}', str(c.get('desc', ''))):
+        problems.append(f'{tag}: 説明にメールアドレスや電話番号のようなものがある')
+
+for i, x in enumerate(D.get('ALERTS', [])):
+    tag = f"ALERTS[{i}] {x.get('pref')}{x.get('city')}"
+    if f"{x.get('pref')}|{x.get('city')}" not in D['PLACES']: problems.append(f'{tag}: PLACES に場所がない')
+    if not str(x.get('url', '')).startswith('https://'): problems.append(f'{tag}: 出典URLが https で始まらない')
+    if not re.match(r'^\d{4}-\d{2}-\d{2}$', str(x.get('d', ''))): problems.append(f'{tag}: 日付の形式が不正')
+    for k in ('desc', 'src', 'kind', 'city', 'url'):
+        v = str(x.get(k, ''))
+        if re.search(r'<|>|javascript:|data:|on\w+=', v, re.I): problems.append(f'{tag}: {k} にHTMLやスクリプトのような文字列がある')
+    if re.search(r'@[\w.-]+\.\w+|\d{2,4}-\d{2,4}-\d{3,4}|0\d{9,10}', str(x.get('desc', ''))):
         problems.append(f'{tag}: 説明にメールアドレスや電話番号のようなものがある')
 
 if problems:

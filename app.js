@@ -54,6 +54,23 @@ $("reset").addEventListener("click",()=>{state.place=null;state.type=null;state.
 const inPeriod=c=>!state.period||ageDays(c)<=state.period;
 const visible=c=>(state.month?c.d.slice(0,7)===state.month:inPeriod(c))&&(!state.type||c.type===state.type);
 
+/* 警察の注意情報（予兆電話など）。30日を過ぎたものは表示しない */
+const ALERT_LIST=(typeof ALERTS!=="undefined"?ALERTS:[]).filter(a=>PLACES[a.pref+"|"+a.city]&&(TODAY-toDate(a.d))/864e5<=30).sort((a,b)=>b.d.localeCompare(a.d));
+const aKey=(a,i)=>"al-"+i;
+function alertCard(a,i,dist){return `<article class="acard" id="${aKey(a,i)}"><div class="ah"><span>${esc(fmtDate(a.d))}</span><span class="ak">${esc(a.kind)}</span>${dist!=null?`<span>約${Math.round(dist/10)*10}km</span>`:""}${a.basis==="headline"?'<span class="hl">見出しで確認</span>':""}</div>
+  <div class="aw">${fullName(a.pref)} ${esc(a.city)}</div><p>${esc(a.desc)}</p>
+  <div class="src">出典：<a href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener noreferrer">${esc(a.src)}</a></div></article>`;}
+function renderAlerts(){
+  if(!ALERT_LIST.length){$("alertsBox").hidden=true;return;}
+  $("alerts").innerHTML=ALERT_LIST.slice(0,6).map((a,i)=>alertCard(a,i)).join("")+(ALERT_LIST.length>6?`<p class="hint">ほか${ALERT_LIST.length-6}件は地図の◆から見られます。</p>`:"");
+}
+function flashAlert(i){
+  if(i>=6){const a=ALERT_LIST[i];const box=$("alerts");box.insertAdjacentHTML("afterbegin",alertCard(a,i));}
+  const el=$(aKey(null,i));if(!el)return;
+  el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});
+  el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600);
+}
+
 /* 最新の事件 */
 function renderLatest(){
   const rows=[...CASES].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,4);
@@ -76,11 +93,14 @@ function renderNear(){
   const c0=PREF_C[state.home];
   const rows=CASES.map(c=>({c,dist:km(c0,lonlat(c))})).filter(x=>x.dist<=150&&ageDays(x.c)<=365).sort((a,b)=>a.dist-b.dist);
   const recent=rows.filter(x=>ageDays(x.c)<=90).length;
-  if(!rows.length){$("nearBody").innerHTML=`<p>${fullName(state.home)}の周辺150km以内では、直近1年に掲載中の事件はありません。掲載は報道で確認できたものに限られるため、被害がないという意味ではありません。${prefLink(state.home)}</p>`;return;}
-  $("nearBody").innerHTML=`<p><b>${fullName(state.home)}の周辺150km以内で、直近1年に${rows.length}件</b>（うち直近3か月に${recent}件）。</p>
+  const al=ALERT_LIST.map((a,i)=>{const p=PLACES[a.pref+"|"+a.city];return {a,i,dist:km(c0,[p[1],p[0]])};}).filter(x=>x.dist<=150).sort((x,y)=>x.dist-y.dist);
+  const alHtml=al.length?`<p><b>直近30日の警察の注意情報：${al.length}件</b></p><ul>${al.slice(0,4).map(x=>`<li><button class="link" data-al="${x.i}">${fullName(x.a.pref)} ${esc(x.a.city)}</button>（約${Math.round(x.dist/10)*10}km）${esc(fmtDate(x.a.d))}・${esc(x.a.kind)}</li>`).join("")}</ul>`:"";
+  const bindAl=()=>$("nearBody").querySelectorAll("button[data-al]").forEach(b=>b.addEventListener("click",()=>flashAlert(+b.dataset.al)));
+  if(!rows.length){$("nearBody").innerHTML=`<p>${fullName(state.home)}の周辺150km以内では、直近1年に掲載中の事件はありません。掲載は報道で確認できたものに限られるため、被害がないという意味ではありません。${prefLink(state.home)}</p>`+alHtml;bindAl();return;}
+  $("nearBody").innerHTML=alHtml+`<p><b>${fullName(state.home)}の周辺150km以内で、直近1年に${rows.length}件</b>（うち直近3か月に${recent}件）。</p>
    <ul>${rows.slice(0,6).map(x=>`<li><button class="link" data-k="${esc(keyOf(x.c))}">${fullName(x.c.pref)} ${esc(x.c.city)}</button>（約${Math.round(x.dist/10)*10}km）${esc(x.c.show)}・${TYPES[x.c.type].label}</li>`).join("")}</ul>
    <p style="font-size:13px">近くで続いているのは、${topKinds(rows)}です。<a href="#taisaku">対策を見る</a>${prefLink(state.home)}</p>`;
-  $("nearBody").querySelectorAll("button.link").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.k)));
+  $("nearBody").querySelectorAll("button[data-k]").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.k)));bindAl();
 }
 const SLUG={"北海道":"hokkaido","青森":"aomori","岩手":"iwate","宮城":"miyagi","秋田":"akita","山形":"yamagata","福島":"fukushima","茨城":"ibaraki","栃木":"tochigi","群馬":"gunma","埼玉":"saitama","千葉":"chiba","東京":"tokyo","神奈川":"kanagawa","新潟":"niigata","富山":"toyama","石川":"ishikawa","福井":"fukui","山梨":"yamanashi","長野":"nagano","岐阜":"gifu","静岡":"shizuoka","愛知":"aichi","三重":"mie","滋賀":"shiga","京都":"kyoto","大阪":"osaka","兵庫":"hyogo","奈良":"nara","和歌山":"wakayama","鳥取":"tottori","島根":"shimane","岡山":"okayama","広島":"hiroshima","山口":"yamaguchi","徳島":"tokushima","香川":"kagawa","愛媛":"ehime","高知":"kochi","福岡":"fukuoka","佐賀":"saga","長崎":"nagasaki","熊本":"kumamoto","大分":"oita","宮崎":"miyazaki","鹿児島":"kagoshima","沖縄":"okinawa"};
 const prefLink=p=>window.PREF_PAGES&&SLUG[p]?` ／ <a href="pref/${SLUG[p]}.html">${fullName(p)}のページを見る</a>`:"";
@@ -88,7 +108,7 @@ function topKinds(rows){const n={};rows.forEach(x=>n[x.c.type]=(n[x.c.type]||0)+
   return Object.entries(n).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${TYPES[k].label}（${v}件）`).join("、");}
 
 /* 地図 */
-let pinSel,ringSel,lblSel,prefSel,zoomer,svg,proj,projOki,goView;
+let alertSel,pinSel,ringSel,lblSel,prefSel,zoomer,svg,proj,projOki,goView;
 const projAll=(ll,pref)=>pref==="沖縄"&&projOki?projOki(ll):proj(ll);
 function drawMap(){
   if(!window.d3||!window.topojson||!TOPO){$("map").outerHTML='<p class="empty" style="padding:16px">地図を読み込めませんでした。右のリストから事件を確認できます。</p>';return;}
@@ -139,7 +159,7 @@ const rOf=n=>4+Math.sqrt(n)*3;
 let curK=1;
 function scalePins(k){
   curK=k;if(!pinSel)return;
-  pinSel.attr("r",d=>rOf(d.n)/k);ringSel&&ringSel.attr("r",d=>rOf(d.n)/k);
+  pinSel.attr("r",d=>rOf(d.n)/k);alertSel&&alertSel.attr("transform",d=>`translate(${d.x},${d.y}) scale(${1/k})`);ringSel&&ringSel.attr("r",d=>rOf(d.n)/k);
   lblSel.attr("x",d=>d.x+(rOf(d.n)+3)/k).attr("y",d=>d.y+4/k).style("font-size",(11/k)+"px")
     .style("stroke-width",(3/k)+"px").attr("display",k>=3.5?null:"none");
 }
@@ -161,6 +181,11 @@ function renderMapState(){
     .on("keydown",(e,d)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();state.place=state.place===d.k?null:d.k;render();}});
   pinSel.append("title").text(d=>`${labelOf(d.k)}：${d.n}件`);
   lblSel=g.selectAll("text").data(pins).join("text").attr("class","lbl").text(d=>d.k.split("|")[1]+(d.n>1?` ${d.n}`:""));
+  const ams=ALERT_LIST.map((a,i)=>{const p=PLACES[a.pref+"|"+a.city];const [x,y]=projAll([p[1],p[0]],a.pref);return {a,i,x:x+7,y:y-7,vague:!!p[2]};});
+  alertSel=g.selectAll("path.amark").data(ams).join("path").attr("class",d=>"amark"+(d.vague?" vague":"")).attr("d","M0,-7L7,0L0,7L-7,0Z")
+    .attr("tabindex",0).attr("role","button").attr("aria-label",d=>`注意情報 ${fullName(d.a.pref)} ${d.a.city} ${d.a.kind}`)
+    .on("click",(e,d)=>flashAlert(d.i)).on("keydown",(e,d)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flashAlert(d.i);}});
+  alertSel.append("title").text(d=>`${fmtDate(d.a.d)} ${fullName(d.a.pref)} ${d.a.city}：${d.a.kind}`);
   prefSel.classed("home",d=>state.home&&d.properties.nam_ja===fullName(state.home));
   scalePins(curK);
 }
@@ -232,4 +257,4 @@ hbars("byCrime",WP_CRIME,"強盗");hbars("byAge",WP_AGE,"20〜24歳");
     s+=`<text class="val" x="${x+bw/2}" y="${y(v)-4}" text-anchor="middle">${Math.round(v).toLocaleString()}</text>`;
     s+=`<text class="axis" x="${x+bw/2}" y="${H-mb+16}" text-anchor="middle">${yr}</text>`;});
   $("fraudChart").innerHTML=s+"</svg>";})();
-drawMap();renderLatest();renderNear();render();
+drawMap();renderAlerts();renderLatest();renderNear();render();

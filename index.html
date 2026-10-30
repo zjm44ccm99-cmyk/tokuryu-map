@@ -28,7 +28,7 @@
   --bg:#f3f5f8; --surface:#ffffff; --fg:#161b24; --muted:#586273; --line:#d6dbe3;
   --sea:#e6edf5; --land:#ffffff; --land-hit:#dfe7f3; --border:#b9c3d1;
   --murder:#b3261e; --robbery:#c46a10; --theft:#3d6aa8; --fraud:#7a4fa0; --prep:#6b7380; --other:#2f8a7a;
-  --alert-bg:#fff4e8; --alert-line:#efc79a;
+  --alert-bg:#fff4e8; --alert-line:#efc79a; --warn:#c2185b;
   --focus:#c46a10; --halo:#ffffff; --bar:#3f659e;
   --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
   --body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
@@ -37,13 +37,13 @@
   --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
   --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
   --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1; --other:#6cc5b3;
-  --alert-bg:#2a2016; --alert-line:#6b4a24;
+  --alert-bg:#2a2016; --alert-line:#6b4a24; --warn:#f06292;
   --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
   --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
   --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1; --other:#6cc5b3;
-  --alert-bg:#2a2016; --alert-line:#6b4a24;
+  --alert-bg:#2a2016; --alert-line:#6b4a24; --warn:#f06292;
   --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.7;margin:0}
 .bar-top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -161,6 +161,17 @@ ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;ma
 .about h2{font-size:14px;margin:0}
 .about p{margin:0;font-size:14px}
 .about p b{font-weight:700}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.acard{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.acard .ah{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.acard .ak{color:var(--warn);font-weight:700}
+.acard .aw{font-weight:700;font-size:15px}
+.acard p{margin:0;font-size:14px}
+.acard .src{font-size:12px}
+.acard.flash{outline:3px solid var(--warn);outline-offset:2px}
+.amark{fill:var(--warn);stroke:var(--halo);stroke-width:1.5;cursor:pointer;vector-effect:non-scaling-stroke}
+.amark.vague{fill-opacity:.35;stroke-dasharray:3 2}
+.legend i.d{border-radius:1px;transform:rotate(45deg);width:9px;height:9px;background:var(--warn)}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (max-width:640px){.kpis{grid-template-columns:minmax(0,1fr)}}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
@@ -224,6 +235,11 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <div id="nearBody"><p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p></div>
   </div>
 
+  <section aria-labelledby="alh" id="alertsBox">
+    <div class="row"><span class="lab" id="alh">警察の注意情報（直近30日）</span><span class="lab">― 予兆電話や不審な電話・訪問の多発など。事件の前触れになりやすい情報です</span></div>
+    <div class="alerts" id="alerts"></div>
+  </section>
+
   <div>
     <div class="row"><span class="lab">最新の事件</span></div>
     <div class="latest" id="latest"></div>
@@ -258,6 +274,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
         <span><i style="background:var(--fraud)"></i>詐欺</span>
         <span><i style="background:var(--prep)"></i>予備・侵入・下見</span>
         <span><i style="background:var(--other)"></i>その他</span>
+        <span><i class="d"></i>警察の注意情報（直近30日）</span>
         <span><i class="p"></i>直近3か月（波紋）</span>
         <span><i class="v"></i>市区町村不明</span>
       </div>
@@ -310,6 +327,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
       <li>税金のアンケートなどを装って資産を聞く</li>
       <li>案件屋のスマートフォンから、標的とみられる情報が多数見つかった例もある</li>
     </ul>
+    <p><b>予兆電話でよく使われる名乗り</b>（埼玉県警が公開した1週間・1署管内の例）：郵便局員、金融機関の職員、通信会社、運送会社、電力会社、市役所の職員、警察官、親族。「荷物に違法なものがある」「カードが不正利用された」「医療費の還付がある」などと言い、多くは途中で「警察に転送する」と続けます。「周りの人に聞かれない場所に移動してください」と求める例も公開されています。</p>
     <div class="ex"><button data-goto="広島|広島市">広島市（事件3日前にアポ電）</button><button data-goto="東京|江東区">江東区（情報元を逮捕）</button><button data-goto="群馬|館林市">館林市（案件屋を逮捕）</button><button data-goto="奈良|奈良市">奈良市（案件屋を逮捕）</button></div>
   </div></div>
 
@@ -328,7 +346,9 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <h2>実行役が「闇バイト」で集められる</h2>
     <p>指示役は、SNSで高い報酬をうたって実行役を募ります。応募すると秘匿性の高い通信アプリに誘導され、身分証の画像や家族の情報を送らされます。その情報を使って「断れば家族に危害を加える」と脅され、抜けられなくなります。</p>
     <p>警察白書によると、2025年に匿流がらみで検挙された人の約3割（1,823人）は、SNS上の募集を見たことが犯行のきっかけでした。一方、主犯や指示役は検挙者の約1割にとどまります。</p>
-    <div class="words" aria-label="募集でよく使われる言葉"><span>ホワイト案件</span><span>高額・即日払い</span><span>運ぶだけ</span><span>荷物の受け取り</span><span>回収作業</span></div>
+    <p>警察庁がSNSでの警告に使っている言葉には、次のようなものがあります。仕事内容がもっともらしく書かれていても、これらが並ぶ募集は疑ってください。</p>
+    <div class="words" aria-label="募集でよく使われる言葉"><span>高額</span><span>高収入</span><span>即日即金</span><span>ホワイト案件</span><span>簡単</span><span>運び</span><span>送迎</span><span>荷物の受け取り</span><span>回収作業</span></div>
+    <p>警察庁は、応募した人は「使い捨て」にされ、知らなかったでは済まないと警告しています。一方で、途中で抜けようと警察に相談した人とその家族は、警察が保護するとしています。</p>
     <ul>
       <li>実行役同士は初対面のことが多く、犯行当日に初めて顔を合わせる</li>
       <li>16歳の高校生が強盗殺人の実行役として逮捕された例もある</li>
@@ -367,6 +387,9 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <li><a href="https://gendai.media/articles/-/169716" target="_blank" rel="noopener">現代ビジネス：個人情報を握られ「断れば家族を殺す」と脅された実行役</a></li>
     <li><a href="https://bunshun.jp/articles/-/88803" target="_blank" rel="noopener">文春オンライン：上三川町事件、実行中もアプリで指示</a></li>
     <li><a href="https://www.npa.go.jp/publications/whitepaper/r08/pdf/03_topics.pdf" target="_blank" rel="noopener">警察庁：令和8年版警察白書 トピックスⅠ 匿名・流動型犯罪グループ対策</a></li>
+    <li><a href="https://internet.watch.impress.co.jp/docs/news/1639778.html" target="_blank" rel="noopener">INTERNET Watch：警察庁がXで闇バイト応募者に警告（募集で使われる言葉）</a></li>
+    <li><a href="https://www.police.pref.saitama.lg.jp/p0110/kenke/keimu/261013.html" target="_blank" rel="noopener">埼玉県警察：特殊詐欺予兆電話情報（名乗りと内容の例）</a></li>
+    <li><a href="https://tosonline.jp/news/20261021/00000012.html" target="_blank" rel="noopener">TOSテレビ大分：県警が予兆電話の音声を公開</a></li>
     <li><a href="https://www.nippon.com/ja/news/yjj2026070300968/" target="_blank" rel="noopener">時事通信：案件屋と指示役のやり取り</a></li>
     <li><a href="https://www.jiji.com/jc/article?k=2026102900678&amp;g=soc" target="_blank" rel="noopener">時事通信：電話でニセ防犯指導、空き巣被害に（警視庁が注意喚起）</a></li>
     <li><a href="https://news.yahoo.co.jp/articles/d44e82ad072415d3c18230c25191b50d01f35ccd" target="_blank" rel="noopener">産経新聞：「防犯指導」で貴重品を1か所にまとめさせてから空き巣</a></li>
@@ -397,6 +420,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
       <li>「あなたが捜査の対象になっている」「逮捕状が出ている」と言われても、その場で話を進めない。一度電話を切る</li>
       <li>警察は電話で捜査対象だと告げたり、LINEなどのSNSに誘導したり、警察手帳や逮捕状の画像を送ったり、ビデオ通話をしたりしない</li>
       <li>表示された番号が警察署の番号や「0110」で終わる番号でも、偽装されていることがある。自分で調べた警察署の代表番号か #9110 に掛け直して確かめる</li>
+      <li>郵便局・銀行・通信会社・役所などから「警察に電話を転送する」ことはない。転送すると言われたら、その時点で詐欺を疑う</li>
       <li>お金の話が出たら詐欺。捜査や資金確認を理由に、現金を用意させたり、置き場所を指定したり、振り込ませたりすることはない</li>
       <li>家の現金や貴金属の保管場所、在宅時間を聞かれても答えない（空き巣や強盗の下調べのこともある）</li>
       <li>「+」から始まる国際電話は、使わないなら無料で利用を止められる</li>
@@ -412,6 +436,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
       <li><b>匿名通報ダイヤル 0120-924-839</b>：匿流や暴力団が関わる犯罪、特殊詐欺、犯罪に使われる携帯電話や口座の情報などを匿名で伝えられる。平日10〜17時、ウェブの通報フォームもある。役立つ情報には情報料が支払われることがある</li>
       <li><b>海外の詐欺拠点に関わったかもしれないとき</b>：外務省 領事サービスセンター 03-3580-3311（内線2902・2903）</li>
     </ul>
+    <p>お住まいの県警や市町村は、予兆電話や不審者の情報をメールやSNSで配信していることが多く、登録しておくと近くの動きを早く知ることができます。</p>
     <p>伝えるときは、日時、場所、相手が名乗った名前や所属、電話番号、車の特徴やナンバーなどを、分かる範囲でメモしておくと役立ちます。</p>
   </div>
 
@@ -456,6 +481,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
   </div>
 
   <div class="srcs"><b>出典</b><ul>
+    <li><a href="https://www.police.pref.saitama.lg.jp/p0110/kenke/keimu/261013.html" target="_blank" rel="noopener">埼玉県警察：外部機関から警察へ電話を転送することはない</a></li>
     <li><a href="https://www.pref.niigata.lg.jp/site/kenkei/nisekeikann-tyuui.html" target="_blank" rel="noopener">新潟県警察：ニセ警察官に注意（警察が絶対にしないこと）</a></li>
     <li><a href="https://www.gov-online.go.jp/kurashinosodan/list/ct_bouhan.html" target="_blank" rel="noopener">政府広報オンライン：防犯に関する相談窓口（#9110、匿名通報ダイヤル、外務省窓口）</a></li>
     <li><a href="https://www.keishicho.metro.tokyo.lg.jp/about_mpd/johoteikyo/anket/tsuho_dial.html" target="_blank" rel="noopener">警視庁：匿名通報ダイヤル</a></li>
