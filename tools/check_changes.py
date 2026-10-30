@@ -52,7 +52,7 @@ for i, x in enumerate(D.get('ALERTS', [])):
         problems.append(f'{tag}: 説明にメールアドレスや電話番号のようなものがある')
 
 from urllib.parse import urlparse
-OFFICIAL = re.compile(r'(\.lg\.jp|\.go\.jp|keishicho\.metro\.tokyo\.lg\.jp|^www\.police\.pref\.[a-z]+\.(lg\.)?jp|^www\.pref\.[a-z]+\.(lg\.)?jp)$')
+OFFICIAL = re.compile(r'(\.lg\.jp|\.go\.jp|^(www\d?\.)?police\.pref\.[a-z]+\.(lg\.)?jp|^www\.pref\.[a-z]+\.(lg\.)?jp)$')
 for pref, links in D.get('POLICE_LINKS', {}).items():
     for l in links:
         u, v = str(l.get('url', '')), str(l.get('verify', ''))
