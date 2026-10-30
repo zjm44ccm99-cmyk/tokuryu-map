@@ -69,6 +69,7 @@ h2{font-size:17px;margin:0 0 8px;text-wrap:balance}
 .lead{margin:0;color:var(--muted)}
 .stats{display:flex;flex-wrap:wrap;gap:6px 24px;font-variant-numeric:tabular-nums}
 .stats b{font-family:var(--display);font-weight:400;font-size:26px;margin-right:4px}.stats span{font-size:13px;color:var(--muted)}
+.report{border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:6px;padding:16px 18px;background:var(--surface);margin:18px 0}.report h2{margin:0 0 8px;font-size:18px}.report p{margin:0 0 8px}.rp-list{margin:0 0 8px;padding-left:1.2em}.rp-list li{margin:2px 0}.rp-how b{user-select:all}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 18px;min-width:0}
 ol{list-style:none;margin:0;padding:0}
 .item{display:grid;grid-template-columns:4px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
@@ -179,6 +180,7 @@ def main():
             parts.append(f'<section class="panel"><h2>{e(fn)}警察の公式発信</h2><p class="note">最新の予兆電話や事件の速報は、警察の公式SNSが最も早く出します。県警の公式サイトでリンクを確認したものだけを載せています。</p><div class="btns">'
                          + ''.join(f'<a href="{e(l["url"] if str(l["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(l["name"])}</a>' for l in pls)
                          + '</div></section>')
+        parts.append('<section class="report"><h2>不審な電話は、警察に伝えよう</h2><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></section>')
         parts.append('<section><h2>不審な電話や訪問があったら</h2><div class="call">'
                      '<div><b>110</b><span>不審な人や車がいる、いま危ない</span></div>'
                      '<div><b>#9110</b><span>警察相談専用電話。急ぎでない相談</span></div>'
