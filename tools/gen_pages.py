@@ -175,12 +175,12 @@ def main():
                          f'<div><b>#9110</b><span>警察相談専用電話（全国共通）</span></div>'
                          f'<div><b>110</b><span>いま危ない、事件が起きている</span></div></div>'
                          f'<p class="note" style="margin-top:10px">警察を名乗る電話を確かめるときは、着信画面に出た番号ではなく、この番号か<a href="{e(okurl(pc["list"]))}" target="_blank" rel="noopener noreferrer">公式サイトの警察署一覧</a>にある番号へ、自分から掛け直してください。番号は県警の公式サイトで確認しています（<a href="{e(okurl(pc["verify"]))}" target="_blank" rel="noopener noreferrer">確認元</a>）。</p></section>')
+        parts.append('<section class="report"><h2>不審な電話は、警察に伝えよう</h2><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></section>')
         pls = D.get('POLICE_LINKS', {}).get(name, [])
         if pls:
             parts.append(f'<section class="panel"><h2>{e(fn)}警察の公式発信</h2><p class="note">最新の予兆電話や事件の速報は、警察の公式SNSが最も早く出します。県警の公式サイトでリンクを確認したものだけを載せています。</p><div class="btns">'
                          + ''.join(f'<a href="{e(l["url"] if str(l["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(l["name"])}</a>' for l in pls)
                          + '</div></section>')
-        parts.append('<section class="report"><h2>不審な電話は、警察に伝えよう</h2><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></section>')
         parts.append('<section><h2>不審な電話や訪問があったら</h2><div class="call">'
                      '<div><b>110</b><span>不審な人や車がいる、いま危ない</span></div>'
                      '<div><b>#9110</b><span>警察相談専用電話。急ぎでない相談</span></div>'

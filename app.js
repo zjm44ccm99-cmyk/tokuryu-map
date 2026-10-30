@@ -89,6 +89,7 @@ if(!Object.keys(PREF_C).length) $("near").hidden=true;
 homeSel.value=state.home;
 homeSel.addEventListener("change",()=>{state.home=homeSel.value;try{localStorage.setItem("tkr-home",state.home);}catch(e){}renderNear();renderMapState();});
 function renderNear(){
+  $("reportBox").hidden=!(state.home&&PREF_C[state.home]);
   if(!state.home||!PREF_C[state.home]){$("nearBody").innerHTML='<p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p>';return;}
   const c0=PREF_C[state.home];
   const rows=CASES.map(c=>({c,dist:km(c0,lonlat(c))})).filter(x=>x.dist<=150&&ageDays(x.c)<=365).sort((a,b)=>a.dist-b.dist);
