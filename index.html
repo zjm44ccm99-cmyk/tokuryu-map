@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="匿名・流動型犯罪グループ（トクリュウ）関連の事件を、報道をもとに時系列と市区町村の地図で追うサイト。手口と対策も紹介。">
+<title>トクリュウ事件マップ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Dela+Gothic+One&display=swap">
+<style>
+/* Layout: 上部ナビ＋3ビュー（いまの状況／手口／対策）。状況ビューは地図＋時系列＋近くの事件。 */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --fg:#161b24; --muted:#586273; --line:#d6dbe3;
+  --sea:#e6edf5; --land:#ffffff; --land-hit:#dfe7f3; --border:#b9c3d1;
+  --murder:#b3261e; --robbery:#c46a10; --theft:#3d6aa8; --fraud:#7a4fa0; --prep:#6b7380;
+  --alert-bg:#fff4e8; --alert-line:#efc79a;
+  --focus:#c46a10; --halo:#ffffff; --bar:#3f659e;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
+  --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
+  --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1;
+  --alert-bg:#2a2016; --alert-line:#6b4a24;
+  --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
+  --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
+  --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1;
+  --alert-bg:#2a2016; --alert-line:#6b4a24;
+  --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.7;margin:0}
+.bar-top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--surface)}
+.bar-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.brand{font-family:var(--display);font-size:18px;line-height:1.2}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:4px;font-size:14px;font-weight:700}
+nav a[aria-current="page"]{background:var(--fg);color:var(--bg)}
+.page{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(26px,4.4vw,40px);line-height:1.25;margin:0;text-wrap:balance}
+h2{text-wrap:balance}
+.lead{margin:0;max-width:64ch;color:var(--muted)}
+.head{display:flex;flex-direction:column;gap:8px}
+.updated{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* 最新の動き */
+.latest{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.latest{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.latest{grid-template-columns:minmax(0,1fr)}}
+.lcard{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0;border-top:4px solid var(--c)}
+.lcard .when{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lcard .where{font-weight:700;font-size:15px}
+.lcard .what{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.new{display:inline-block;font-size:11px;font-weight:700;color:var(--bg);background:var(--focus);border-radius:3px;padding:0 6px;margin-left:6px;vertical-align:1px}
+
+/* 近くの事件 */
+.near{background:var(--alert-bg);border:1px solid var(--alert-line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.near-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.near h2{font-size:15px;margin:0}
+.near p{margin:0;font-size:14px}
+.near ul{margin:0;padding-left:1.2em;font-size:14px}
+.near button.link{border:0;background:none;padding:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
+
+.main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.panel h2{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.panel h2 small{font-weight:400;color:var(--muted);font-size:12px}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.row .lab{font-size:12px;color:var(--muted);margin-right:2px}
+.mapwrap{position:relative;border-radius:4px;overflow:hidden;background:var(--sea);border:1px solid var(--line)}
+#map{display:block;width:100%;height:auto;aspect-ratio:1/1;max-width:100%;touch-action:none;cursor:grab}
+.zoombtns{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px}
+.zoombtns button{width:32px;height:32px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:4px;font:700 18px/1 var(--body);cursor:pointer}
+.pref{fill:var(--land);stroke:var(--border);stroke-width:.6;vector-effect:non-scaling-stroke}
+.pref.has{fill:var(--land-hit)}
+.pref.home{stroke:var(--focus);stroke-width:2}
+.pin{cursor:pointer;stroke:var(--halo);vector-effect:non-scaling-stroke}
+.pin.vague{fill-opacity:.25;stroke-dasharray:3 2;stroke-width:1.5}
+.pin.sel{stroke:var(--fg);stroke-width:2.5}
+.ring{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){.ring{animation:pulse 2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+ @keyframes pulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.6);opacity:0}}}
+.lbl{font:700 11px var(--body);fill:var(--fg);paint-order:stroke;stroke:var(--halo);stroke-width:3px;pointer-events:none}
+.legend{display:flex;align-items:center;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.legend i.v{background:transparent!important;border:1.5px dashed var(--muted)}
+.legend i.p{background:transparent!important;border:2px solid var(--focus)}
+.hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.chip{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:4px 12px;font:13px var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip .dot{width:8px;height:8px;border-radius:50%}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+select{font:14px var(--body);padding:5px 8px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--fg)}
+.reset{border:0;background:none;color:var(--muted);text-decoration:underline;font:12px var(--body);cursor:pointer;padding:0}
+ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-height:880px;overflow-y:auto}
+.item{display:grid;grid-template-columns:4px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.stripe{border-radius:2px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta .type{font-weight:700}
+.place{font-weight:700;font-size:15px;margin:2px 0}
+.desc{margin:0;font-size:14px}
+.src{font-size:12px;margin-top:4px}
+.src a,.srcs a{color:var(--muted)}
+.series{font-size:11px;border:1px solid var(--line);border-radius:3px;padding:0 6px}
+.empty{color:var(--muted);font-size:14px;padding:16px 0}
+
+/* 時系列 */
+.tl svg{display:block;width:100%;height:auto}
+.tl .axis{font:11px var(--body);fill:var(--muted)}
+.tl .gl{stroke:var(--line)}
+.tl rect.b{fill:var(--bar)}
+.tl rect.b.on{fill:var(--focus)}
+.tl rect.hit{fill:transparent;cursor:pointer}
+.tl .cnt{font:700 10px var(--body);fill:var(--fg)}
+
+/* 読み物ページ */
+.article{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px}
+.num{font-family:var(--display);font-size:22px;line-height:1;width:44px;height:44px;border-radius:50%;border:2px solid var(--fg);display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.step h2,.block h2{font-size:19px;margin:6px 0 6px}
+.step p,.block p{margin:0 0 8px;max-width:65ch}
+.step ul,.block ul{margin:0 0 8px;padding-left:1.2em;max-width:65ch}
+.step li,.block li{margin:2px 0}
+.ex{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.ex button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:4px;padding:3px 10px;font:12px var(--body);cursor:pointer}
+.ex button::before{content:"地図で見る  ";color:var(--muted)}
+.words{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.words span{border:1px dashed var(--muted);border-radius:3px;padding:1px 8px;font-size:13px}
+.block{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.call{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.call{grid-template-columns:minmax(0,1fr)}}
+.call div{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--surface)}
+.call b{font-family:var(--display);font-weight:400;font-size:26px;display:block;line-height:1.2;user-select:all}
+.call span{font-size:13px;color:var(--muted)}
+.srcs{font-size:12px;color:var(--muted)}
+.srcs ul{padding-left:1.2em;margin:4px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.kpis{grid-template-columns:minmax(0,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-family:var(--display);font-weight:400;font-size:32px;line-height:1.15;font-variant-numeric:tabular-nums}
+.kpi b small{font-family:var(--body);font-size:15px;font-weight:700;margin-left:2px}
+.kpi span{font-size:13px;color:var(--muted)}
+.hbars{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.hbar{display:grid;grid-template-columns:7.5em minmax(0,1fr) 4.5em;gap:8px;align-items:center;font-size:13px;font-variant-numeric:tabular-nums}
+.hbar .track{height:14px;background:var(--sea);border-radius:2px;overflow:hidden}
+.hbar .fill{height:100%;background:var(--bar)}
+.hbar .fill.hot{background:var(--focus)}
+.hbar .v{text-align:right}
+.chartbox svg{display:block;width:100%;height:auto}
+.chartbox .axis{font:11px var(--body);fill:var(--muted)}
+.chartbox .gl{stroke:var(--line)}
+.chartbox .val{font:700 11px var(--body);fill:var(--fg)}
+.small{font-size:12px;color:var(--muted);margin:6px 0 0}
+.notes{font-size:13px;color:var(--muted);max-width:75ch}
+.notes h2{font-size:14px;color:var(--fg);margin:0 0 6px}
+.notes ul{margin:0;padding-left:1.2em}
+button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+</style>
+
+</head>
+<body>
+<div class="bar-top"><div class="bar-in">
+  <div class="brand">トクリュウ事件マップ</div>
+  <nav aria-label="ページ">
+    <a href="#now" data-nav="now">いまの状況</a>
+    <a href="#teguchi" data-nav="teguchi">手口を知る</a>
+    <a href="#taisaku" data-nav="taisaku">対策する</a>
+    <a href="#data" data-nav="data">データ</a>
+  </nav>
+</div></div>
+
+<!-- いまの状況 -->
+<section class="page" id="v-now">
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">匿名・流動型犯罪グループ（匿流）関連事件 ／ 報道ベース</div>
+    <h1>いま、どこで起きているか</h1>
+    <p class="lead">闇バイトで集められた実行役による強盗・窃盗・詐欺を、報道で確認できた範囲で時系列と地図にまとめています。お住まいの地域を選ぶと、近くで最近起きた事件が分かります。</p>
+    <div class="updated" id="updated"></div>
+    <p class="small">警察白書によると、匿流によるとみられる主な犯罪の検挙は2025年だけで6,679人。この地図に載っているのは、そのうち報道で場所まで確認できたごく一部です。<a href="#data">全体のデータを見る</a></p>
+  </div>
+
+  <div class="near" id="near">
+    <div class="near-row">
+      <h2>あなたの地域の近く</h2>
+      <label for="homeSel" class="row" style="margin:0"><span class="lab">都道府県</span></label>
+      <select id="homeSel"><option value="">選んでください</option></select>
+    </div>
+    <div id="nearBody"><p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p></div>
+  </div>
+
+  <div>
+    <div class="row"><span class="lab">最新の事件</span></div>
+    <div class="latest" id="latest"></div>
+  </div>
+
+  <div class="main">
+    <section class="panel" aria-labelledby="maph">
+      <h2 id="maph">地図 <small>ピンを押すとその市区町村の事件を表示</small></h2>
+      <div class="row" role="group" aria-label="期間">
+        <span class="lab">期間</span>
+        <button class="chip" data-period="90">直近3か月</button>
+        <button class="chip" data-period="365">直近1年</button>
+        <button class="chip" data-period="0">すべて</button>
+      </div>
+      <div class="row" role="group" aria-label="表示範囲">
+        <span class="lab">地域</span>
+        <button class="chip" data-view="all" aria-pressed="true">全国</button>
+        <button class="chip" data-view="kanto" aria-pressed="false">首都圏</button>
+        <button class="chip" data-view="tokai" aria-pressed="false">東海</button>
+        <button class="chip" data-view="kansai" aria-pressed="false">関西</button>
+        <button class="chip" data-view="shikoku" aria-pressed="false">四国</button>
+        <button class="chip" data-view="west" aria-pressed="false">中国・九州</button>
+      </div>
+      <div class="mapwrap">
+        <svg id="map" viewBox="0 0 800 800" role="img" aria-label="事件のあった市区町村を示す日本地図"></svg>
+        <div class="zoombtns"><button id="zin" aria-label="拡大">＋</button><button id="zout" aria-label="縮小">−</button></div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--murder)"></i>強盗殺人</span>
+        <span><i style="background:var(--robbery)"></i>強盗・強盗致傷</span>
+        <span><i style="background:var(--theft)"></i>窃盗</span>
+        <span><i style="background:var(--fraud)"></i>詐欺</span>
+        <span><i style="background:var(--prep)"></i>予備・侵入・下見</span>
+        <span><i class="p"></i>直近3か月（波紋）</span>
+        <span><i class="v"></i>市区町村不明</span>
+      </div>
+      <p class="hint">ピンは市区町村の中心付近で、現場の位置ではありません。大きさは件数、色は最も重い事件の種別です。</p>
+    </section>
+
+    <section class="panel" aria-labelledby="listh">
+      <h2 id="listh"><span id="listTitle">事件の一覧</span> <button class="reset" id="reset" hidden>条件を解除</button></h2>
+      <div class="row" id="filters"></div>
+      <ol class="list" id="list"></ol>
+    </section>
+  </div>
+
+  <section class="panel tl" aria-labelledby="tlh">
+    <h2 id="tlh">月ごとの掲載件数 <small>棒を押すとその月に絞り込み（発生月ベース）</small></h2>
+    <div id="timeline"></div>
+    <p class="hint">報道で確認できた件数で、実際の発生件数ではありません。報道の多い時期・地域ほど多く出ます。</p>
+  </section>
+
+  <section class="notes">
+    <h2>掲載基準と注意</h2>
+    <ul>
+      <li>警察や報道が「匿流（トクリュウ）」「闇バイト」の関与を指摘した事件のうち、出典を確認できたものだけを載せています。全件網羅ではありません。</li>
+      <li>日付は発生日（不明な場合は報道時期）。「2024年秋」などは発生日を特定できなかったものです。</li>
+      <li>被害者宅の特定につながらないよう、所在地は市区町村単位です。容疑者・被害者の氏名は掲載しません。</li>
+      <li>逮捕・起訴の段階の事件を含みます。有罪が確定していない人については無罪推定が働きます。</li>
+      <li>地図の境界データ：dataofjapan/land（国土数値情報をもとに作成）。</li>
+      <li>誤り・不起訴などによる訂正や削除のご依頼は、<a href="https://github.com/zjm44ccm99-cmyk/tokuryu-map/issues" target="_blank" rel="noopener">GitHubのIssue</a>からお寄せください。確認のうえ速やかに対応します。</li>
+      <li>このサイトは個人が非営利で運営しています。</li>
+    </ul>
+  </section>
+</div>
+</section>
+
+<!-- 手口 -->
+<section class="page" id="v-teguchi" hidden>
+<div class="article">
+  <div class="head">
+    <div class="eyebrow">手口を知る</div>
+    <h1>トクリュウの事件はこう進む</h1>
+    <p class="lead">匿流の強盗や窃盗は、標的の情報集めから実行まで、役割を分けた別々の人が順番に担います。地図に載せた事件で実際に報じられた手口を、流れに沿って整理しました。</p>
+  </div>
+
+  <div class="step"><div class="num">1</div><div>
+    <h2>標的の情報が集められる</h2>
+    <p>まず「どの家に、何が、いつあるか」が調べられます。標的の住所や資産、家族構成、現金の置き場所を指示役に持ち込む「案件屋」や、仕事で知った情報を流す「情報元」の摘発が相次いでいます。</p>
+    <ul>
+      <li>警察官や役所を名乗る電話で、在宅時間や資産を聞き出す（アポ電）</li>
+      <li>税金のアンケートなどを装って資産を聞く</li>
+      <li>案件屋のスマートフォンから、標的とみられる情報が多数見つかった例もある</li>
+    </ul>
+    <div class="ex"><button data-goto="広島|広島市">広島市（事件3日前にアポ電）</button><button data-goto="東京|江東区">江東区（情報元を逮捕）</button><button data-goto="群馬|館林市">館林市（案件屋を逮捕）</button><button data-goto="奈良|奈良市">奈良市（案件屋を逮捕）</button></div>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div>
+    <h2>下見をされる</h2>
+    <p>実行の前に、家の様子や留守の時間が確かめられます。下見の段階で気づけば、被害を防げる可能性があります。</p>
+    <ul>
+      <li>買い取り業者や点検業者を装って家に上がり、家財を見たり撮影したりする</li>
+      <li>留守のタイミングを調べるため、屋根や室外機の下などに小型カメラを設置する</li>
+      <li>ドアノブを回して施錠を確かめる、周辺をうろつく</li>
+    </ul>
+    <div class="ex"><button data-goto="香川|県内">香川県（屋根に小型カメラ）</button><button data-goto="徳島|県内">徳島県（業者を装った訪問）</button><button data-goto="千葉|野田市">野田市（下見で逮捕）</button></div>
+  </div></div>
+
+  <div class="step"><div class="num">3</div><div>
+    <h2>実行役が「闇バイト」で集められる</h2>
+    <p>指示役は、SNSで高い報酬をうたって実行役を募ります。応募すると秘匿性の高い通信アプリに誘導され、身分証の画像や家族の情報を送らされます。その情報を使って「断れば家族に危害を加える」と脅され、抜けられなくなります。</p>
+    <p>警察白書によると、2025年に匿流がらみで検挙された人の約3割（1,823人）は、SNS上の募集を見たことが犯行のきっかけでした。一方、主犯や指示役は検挙者の約1割にとどまります。</p>
+    <div class="words" aria-label="募集でよく使われる言葉"><span>ホワイト案件</span><span>高額・即日払い</span><span>運ぶだけ</span><span>荷物の受け取り</span><span>回収作業</span></div>
+    <ul>
+      <li>実行役同士は初対面のことが多く、犯行当日に初めて顔を合わせる</li>
+      <li>16歳の高校生が強盗殺人の実行役として逮捕された例もある</li>
+      <li>「詐欺師の家から回収するだけ」などと犯罪ではないかのように説明されることもある</li>
+    </ul>
+    <div class="ex"><button data-goto="栃木|上三川町">上三川町（16歳4人が実行役）</button><button data-goto="東京|台東区">台東区（職務質問で発覚）</button><button data-goto="静岡|伊豆市">伊豆市（当日初対面）</button><button data-goto="北海道|札幌市">札幌市（指示役を逮捕）</button></div>
+  </div></div>
+
+  <div class="step"><div class="num">4</div><div>
+    <h2>押し入り、奪う</h2>
+    <p>住人がいる昼間や未明でも、窓ガラスを割って押し入ります。住人を粘着テープで縛ったり、バールなどで殴ったりして、金庫や現金の場所を聞き出す手口が目立ちます。指示役は実行中もアプリで指示を出します。</p>
+    <ul>
+      <li>狙われるのは、現金や貴金属がありそうな住宅、質店、時計店、買い取り店、リサイクル店など</li>
+      <li>留守宅から金庫ごと短時間で持ち出す窃盗もある</li>
+      <li>同じ家が繰り返し狙われることもある</li>
+    </ul>
+    <div class="ex"><button data-goto="神奈川|横浜市青葉区">横浜市青葉区（強盗殺人）</button><button data-goto="徳島|徳島市">徳島市（質店・住宅）</button><button data-goto="広島|福山市">福山市（約5分で金庫）</button><button data-goto="東京|小金井市">小金井市（同じ家が繰り返し）</button></div>
+  </div></div>
+
+  <div class="step"><div class="num">5</div><div>
+    <h2>強盗以外にも広がる</h2>
+    <p>匿流の資金源は強盗だけではありません。同じ募集の仕組みで、詐欺や窃盗にも人が送り込まれます。</p>
+    <ul>
+      <li>警察官を名乗る電話で「防犯指導」をし、現金の保管場所を言わせてから空き巣に入る</li>
+      <li>警察官などを名乗り現金を受け取る詐欺（受け子・出し子として闇バイトが使われる）</li>
+      <li>偽ブランド品を本物と偽って買い取り店に売る詐欺</li>
+    </ul>
+    <div class="ex"><button data-goto="岐阜|県内">岐阜県（ニセ警察官に6000万円）</button><button data-goto="高知|県内">高知県（偽ロレックス詐欺）</button></div>
+  </div></div>
+
+  <div class="srcs"><b>出典</b><ul>
+    <li><a href="https://news.yahoo.co.jp/articles/41de7fe82850284caf034d0361c1b0636b05d649" target="_blank" rel="noopener">RCC中国放送：広島市6800万円窃盗（事前のアポ電）</a></li>
+    <li><a href="https://news.yahoo.co.jp/articles/27f2c4c87980f7df16e6399618ff34b4961cc30b" target="_blank" rel="noopener">読売新聞：トクリュウの下見が多発（アンケート、業者を装った撮影、小型カメラ）</a></li>
+    <li><a href="https://news.ksb.co.jp/article/16676572" target="_blank" rel="noopener">KSB瀬戸内海放送：香川県警が下見用カメラに注意喚起</a></li>
+    <li><a href="https://www.topics.or.jp/articles/-/1455493" target="_blank" rel="noopener">徳島新聞：不審な訪問や電話が県内で相次ぐ</a></li>
+    <li><a href="https://gendai.media/articles/-/169716" target="_blank" rel="noopener">現代ビジネス：個人情報を握られ「断れば家族を殺す」と脅された実行役</a></li>
+    <li><a href="https://bunshun.jp/articles/-/88803" target="_blank" rel="noopener">文春オンライン：上三川町事件、実行中もアプリで指示</a></li>
+    <li><a href="https://www.npa.go.jp/publications/whitepaper/r08/pdf/03_topics.pdf" target="_blank" rel="noopener">警察庁：令和8年版警察白書 トピックスⅠ 匿名・流動型犯罪グループ対策</a></li>
+    <li><a href="https://www.nippon.com/ja/news/yjj2026070300968/" target="_blank" rel="noopener">時事通信：案件屋と指示役のやり取り</a></li>
+    <li><a href="https://www.jiji.com/jc/article?k=2026102900678&amp;g=soc" target="_blank" rel="noopener">時事通信：電話でニセ防犯指導、空き巣被害に（警視庁が注意喚起）</a></li>
+    <li><a href="https://news.yahoo.co.jp/articles/d44e82ad072415d3c18230c25191b50d01f35ccd" target="_blank" rel="noopener">産経新聞：「防犯指導」で貴重品を1か所にまとめさせてから空き巣</a></li>
+    <li><a href="https://news.yahoo.co.jp/articles/3e88ed6f62dd86a697a4d0db00bd2c6398e2a8fb" target="_blank" rel="noopener">TBS NEWS DIG：江東区の強盗未遂で「情報元」を初逮捕</a></li>
+  </ul></div>
+</div>
+</section>
+
+<!-- 対策 -->
+<section class="page" id="v-taisaku" hidden>
+<div class="article">
+  <div class="head">
+    <div class="eyebrow">対策する</div>
+    <h1>狙われにくい家と、引き込まれない人に</h1>
+    <p class="lead">警察や防犯の専門家が呼びかけている基本の対策を、手口の流れに合わせてまとめました。まずは今日できることから一つずつ。</p>
+  </div>
+
+  <div class="call">
+    <div><b>110</b><span>不審な人や車を見た、いま危ない</span></div>
+    <div><b>#9110</b><span>警察相談専用電話。不審な電話・訪問、闇バイトの相談</span></div>
+    <div><b>最寄りの警察署</b><span>闇バイトに応募してしまった本人や家族も相談できる</span></div>
+  </div>
+
+  <div class="block">
+    <h2>情報を渡さない</h2>
+    <ul>
+      <li>電話やアンケートで、資産・現金の保管場所・家族構成・在宅時間を話さない</li>
+      <li>警察官や役所を名乗る電話は、いったん切って自分で調べた代表番号に掛け直す。警察が電話で現金の保管場所を聞くことはない</li>
+      <li>固定電話は常に留守番電話にして、知らない番号には出ない</li>
+      <li>家族の間で「こういう電話があった」を共有する</li>
+    </ul>
+  </div>
+
+  <div class="block">
+    <h2>下見に気づく</h2>
+    <ul>
+      <li>約束のない訪問はインターホン越しに対応し、家に上げない。業者を名乗っても会社名を聞き、こちらから確認する</li>
+      <li>屋根の上、室外機の下、塀の陰などに見慣れない機器がないか時々確かめる</li>
+      <li>家の周りをうろつく人や、何度も見かける車があれば、ためらわず110番。地域や町内でも共有する</li>
+    </ul>
+  </div>
+
+  <div class="block">
+    <h2>押し入らせない</h2>
+    <ul>
+      <li>窓が最大の侵入口。防犯フィルムや補助錠で「割って開けるまでの時間」を延ばす</li>
+      <li>在宅中、昼間でも玄関と窓を施錠する</li>
+      <li>センサーライトや防犯カメラは、侵入をためらわせる効果がある</li>
+      <li>多額の現金や貴金属を自宅に置かない。置く場合も家族以外に話さない</li>
+      <li>万一押し入られたら、抵抗するより身の安全を優先し、逃げられる部屋・連絡手段を決めておく</li>
+    </ul>
+  </div>
+
+  <div class="block">
+    <h2>闇バイトに引き込まれない</h2>
+    <p>実行役は「使い捨て」にされ、ほぼ確実に逮捕されます。若い人だけでなく、中高年が加わる例もあります。</p>
+    <ul>
+      <li>「高額」「即日」「ホワイト案件」「運ぶだけ」をうたう募集は、仕事内容が書かれていても応募しない</li>
+      <li>通信アプリへの移動を求められたり、身分証の画像を求められたりしたら、その時点でやめる</li>
+      <li>応募してしまった、脅されている場合は、すぐ警察に相談する。警察は相談した本人や家族の保護に力を入れている</li>
+    </ul>
+  </div>
+
+  <div class="srcs"><b>出典</b><ul>
+    <li><a href="https://www.sp-network.co.jp/column-report/column/bouhi/candr0368.html" target="_blank" rel="noopener">エス・ピー・ネットワーク：警察の対策と、巻き込まれた人の保護・#9110での相談</a></li>
+    <li><a href="https://news.ksb.co.jp/article/16676572" target="_blank" rel="noopener">KSB瀬戸内海放送：不審物を見つけたら相談を（香川県警）</a></li>
+    <li><a href="https://www.topics.or.jp/articles/-/1455493" target="_blank" rel="noopener">徳島新聞：不審な訪問に安易に対応しないよう呼びかけ（徳島県警）</a></li>
+    <li><a href="https://www.city.machida.tokyo.jp/kurashi/bouhan/bouhan/news.html" target="_blank" rel="noopener">町田市：ニセ警察官の電話は切って正しい番号に掛け直す／業者を名乗る訪問で家族構成を聞き出す手口</a></li>
+    <li><a href="https://www.chibanippo.co.jp/news/national/1298636" target="_blank" rel="noopener">千葉日報：首都圏連続強盗と住宅防犯の補助金</a></li>
+    <li><a href="https://www.trinity4e.com/contents/individual/column-36.html" target="_blank" rel="noopener">日本防犯カメラセンター：トクリュウ対策と防犯設備</a></li>
+  </ul></div>
+</div>
+</section>
+
+<!-- データ -->
+<section class="page" id="v-data" hidden>
+<div class="article">
+  <div class="head">
+    <div class="eyebrow">データ ／ 令和8年版 警察白書より</div>
+    <h1>数字で見るトクリュウ</h1>
+    <p class="lead">地図に載せているのは報道で確認できた一部の事件です。全体の規模は、警察庁が毎年まとめる警察白書で分かります。ここでは令和8年版（2025年の数字）の匿流対策の章から主な数字を抜き出しました。</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><b>6,679<small>人</small></b><span>2025年に検挙された、匿流によるとみられる主な資金獲得犯罪の人数</span></div>
+    <div class="kpi"><b>約3<small>割</small></b><span>うちSNSの募集を見たことが犯行のきっかけだった人（1,823人）</span></div>
+    <div class="kpi"><b>約6<small>割</small></b><span>うち20代以下の若い世代（14〜29歳で3,859人）</span></div>
+  </div>
+
+  <div class="block">
+    <h2>どんな犯罪で検挙されているか（2025年）</h2>
+    <p>最も多いのは詐欺で、強盗は304人。強盗は数としては少ないものの、人の命や体に直接被害が出る犯罪です。</p>
+    <div class="hbars" id="byCrime"></div>
+    <p class="small">対象は、匿流の活動資金につながる可能性のある詐欺・強盗・窃盗・薬物事犯・風営適正化法違反（白書 図表Ⅰ－２）。</p>
+  </div>
+
+  <div class="block">
+    <h2>検挙された人の年齢（2025年）</h2>
+    <p>最も多いのは20〜24歳の1,564人（23.4%）。一方で、40歳以上も1,492人いて、若者だけの問題ではありません。</p>
+    <div class="hbars" id="byAge"></div>
+  </div>
+
+  <div class="block chartbox">
+    <h2>特殊詐欺などの被害額の推移</h2>
+    <p>2025年の被害額は3,257.4億円、認知件数は4万3,000件で、どちらも過去最悪。2023年から急増しています。</p>
+    <div id="fraudChart"></div>
+    <p class="small">白書 図表Ⅰ－８「特殊詐欺の認知・検挙状況の推移」より。注記により、SNS型投資・ロマンス詐欺の認知件数・被害額は2023年から計上されています。急増にはこの計上方法の変化も含まれます。</p>
+  </div>
+
+  <div class="block">
+    <h2>警察の主な対策</h2>
+    <ul>
+      <li><b>匿名・流動型犯罪グループ情報分析室</b>（2025年10月、警察庁）：各部門や各県警に散らばる情報を一か所に集めて分析し、中核的な人物を特定する。</li>
+      <li><b>匿流ターゲット取締りチーム（T3）</b>（2025年10月、警視庁）：全国から集めた捜査員による専従の取締り体制。</li>
+      <li><b>特殊詐欺連合捜査班（TAIT）</b>（2024年4月、各都道府県警）：2025年の検挙は535件。</li>
+      <li><b>仮装身分捜査</b>：捜査員が架空の身分証で闇バイトの募集に応じる「雇われたふり作戦」。2025年は13件で実施し、強盗予備や詐欺未遂で検挙、7件の被害を未然に防いだ。</li>
+      <li><b>お金と電話の対策</b>：金融機関と連携した被害金の追跡・凍結、詐欺に使われた電話番号の利用停止。2026年6月成立の犯罪収益移転防止法の改正で、通帳を人に譲り渡す行為の罰則が「1年以下」から「3年以下の拘禁刑」に引き上げられた。</li>
+    </ul>
+  </div>
+
+  <div class="srcs"><b>出典</b><ul>
+    <li><a href="https://www.npa.go.jp/publications/whitepaper/r08/pdf/03_topics.pdf" target="_blank" rel="noopener">警察庁：令和8年版警察白書 トピックスⅠ 匿名・流動型犯罪グループ対策（図表Ⅰ－２、Ⅰ－８ほか）</a></li>
+    <li><a href="https://www.npa.go.jp/hakusyo/r06/honbun/html/aaf000000.html" target="_blank" rel="noopener">警察庁：令和6年版警察白書 特集 匿名・流動型犯罪グループに対する警察の取組</a></li>
+  </ul></div>
+</div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="japan-topo.js"></script>
+<script src="data.js"></script>
+<script>
+
+const SUFFIX={"北海道":"","東京":"都","大阪":"府","京都":"府"};
+const fullName=p=>p+(p in SUFFIX?SUFFIX[p]:"県");
+
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const keyOf=c=>c.pref+"|"+c.city;
+const labelOf=k=>{const [p,c]=k.split("|");return fullName(p)+" "+c;};
+const toDate=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,Math.min(d,28));};
+const TODAY=(()=>{const t=new Date();return t<toDate(UPDATED)?toDate(UPDATED):t;})();
+const ageDays=c=>(TODAY-toDate(c.d))/864e5;
+const fmtDate=s=>{const [y,m,d]=s.split("-");return `${+y}年${+m}月${+d}日`;};
+$("updated").textContent="最終更新 "+fmtDate(UPDATED)+" ／ 掲載 "+CASES.length+"件";
+
+const state={place:null,type:null,period:365,month:null,home:""};
+try{const h=localStorage.getItem("tkr-home");if(h)state.home=h;}catch(e){}
+
+/* 都道府県の中心（地図データから計算） */
+const PREF_C={};
+if(window.d3&&window.topojson&&TOPO){
+  topojson.feature(TOPO,TOPO.objects.japan).features.forEach(f=>{
+    const n=f.properties.nam_ja.replace(/[都府県]$/,"");PREF_C[n==="北海道"?"北海道":n]=d3.geoCentroid(f);});
+}
+const km=(a,b)=>{const R=6371,toR=x=>x*Math.PI/180;const dLat=toR(b[1]-a[1]),dLon=toR(b[0]-a[0]);
+  const h=Math.sin(dLat/2)**2+Math.cos(toR(a[1]))*Math.cos(toR(b[1]))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(h));};
+const lonlat=c=>{const p=PLACES[keyOf(c)];return [p[1],p[0]];};
+
+/* ルーティング */
+const VIEWS=["now","teguchi","taisaku","data"];
+function route(){
+  const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"now";
+  VIEWS.forEach(x=>$("v-"+x).hidden=x!==v);
+  document.querySelectorAll("[data-nav]").forEach(a=>{if(a.dataset.nav===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+}
+window.addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
+route();
+
+/* 種別フィルタ */
+const filters=$("filters");
+Object.entries(TYPES).forEach(([k,t])=>{
+  const b=document.createElement("button");
+  b.className="chip";b.dataset.type=k;b.setAttribute("aria-pressed","false");
+  b.innerHTML=`<span class="dot" style="background:${t.color}"></span>${t.label}`;
+  b.addEventListener("click",()=>{state.type=state.type===k?null:k;render();});
+  filters.appendChild(b);
+});
+document.querySelectorAll("[data-period]").forEach(b=>b.addEventListener("click",()=>{state.period=+b.dataset.period;state.month=null;render();}));
+$("reset").addEventListener("click",()=>{state.place=null;state.type=null;state.month=null;render();});
+const inPeriod=c=>!state.period||ageDays(c)<=state.period;
+const visible=c=>(state.month?c.d.slice(0,7)===state.month:inPeriod(c))&&(!state.type||c.type===state.type);
+
+/* 最新の事件 */
+function renderLatest(){
+  const rows=[...CASES].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,4);
+  $("latest").innerHTML=rows.map(c=>`<button class="lcard" style="--c:${TYPES[c.type].color}" data-k="${esc(keyOf(c))}">
+    <span class="when">${esc(c.show)}${ageDays(c)<=90?'<span class="new">直近</span>':""}</span>
+    <span class="where">${fullName(c.pref)} ${esc(c.city)}</span>
+    <span class="what">${TYPES[c.type].label}｜${esc(c.desc)}</span></button>`).join("");
+  $("latest").querySelectorAll(".lcard").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.k)));
+}
+
+/* 近くの事件 */
+const homeSel=$("homeSel");
+Object.keys(PREF_C).length&&[..."北海道,青森,岩手,宮城,秋田,山形,福島,茨城,栃木,群馬,埼玉,千葉,東京,神奈川,新潟,富山,石川,福井,山梨,長野,岐阜,静岡,愛知,三重,滋賀,京都,大阪,兵庫,奈良,和歌山,鳥取,島根,岡山,広島,山口,徳島,香川,愛媛,高知,福岡,佐賀,長崎,熊本,大分,宮崎,鹿児島,沖縄".split(",")]
+  .forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=fullName(p);homeSel.appendChild(o);});
+if(!Object.keys(PREF_C).length) $("near").hidden=true;
+homeSel.value=state.home;
+homeSel.addEventListener("change",()=>{state.home=homeSel.value;try{localStorage.setItem("tkr-home",state.home);}catch(e){}renderNear();renderMapState();});
+function renderNear(){
+  if(!state.home||!PREF_C[state.home]){$("nearBody").innerHTML='<p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p>';return;}
+  const c0=PREF_C[state.home];
+  const rows=CASES.map(c=>({c,dist:km(c0,lonlat(c))})).filter(x=>x.dist<=150&&ageDays(x.c)<=365).sort((a,b)=>a.dist-b.dist);
+  const recent=rows.filter(x=>ageDays(x.c)<=90).length;
+  if(!rows.length){$("nearBody").innerHTML=`<p>${fullName(state.home)}の周辺150km以内では、直近1年に掲載中の事件はありません。掲載は報道で確認できたものに限られるため、被害がないという意味ではありません。</p>`;return;}
+  $("nearBody").innerHTML=`<p><b>${fullName(state.home)}の周辺150km以内で、直近1年に${rows.length}件</b>（うち直近3か月に${recent}件）。</p>
+   <ul>${rows.slice(0,6).map(x=>`<li><button class="link" data-k="${esc(keyOf(x.c))}">${fullName(x.c.pref)} ${esc(x.c.city)}</button>（約${Math.round(x.dist/10)*10}km）${esc(x.c.show)}・${TYPES[x.c.type].label}</li>`).join("")}</ul>
+   <p style="font-size:13px">近くで続いているのは、${topKinds(rows)}です。<a href="#taisaku">対策を見る</a></p>`;
+  $("nearBody").querySelectorAll("button.link").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.k)));
+}
+function topKinds(rows){const n={};rows.forEach(x=>n[x.c.type]=(n[x.c.type]||0)+1);
+  return Object.entries(n).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${TYPES[k].label}（${v}件）`).join("、");}
+
+/* 地図 */
+let pinSel,ringSel,lblSel,prefSel,zoomer,svg,proj,goView;
+function drawMap(){
+  if(!window.d3||!window.topojson||!TOPO){$("map").outerHTML='<p class="empty" style="padding:16px">地図を読み込めませんでした。右のリストから事件を確認できます。</p>';return;}
+  svg=d3.select("#map");const W=800,H=800;
+  const geo=topojson.feature(TOPO,TOPO.objects.japan);
+  proj=d3.geoMercator().fitExtent([[16,16],[W-16,H-16]],{type:"Feature",geometry:{type:"MultiPoint",coordinates:[[129.3,30.9],[145.9,45.6]]}});
+  const path=d3.geoPath(proj);
+  const g=svg.append("g");
+  const hit=new Set(CASES.map(c=>fullName(c.pref)));
+  prefSel=g.append("g").selectAll("path").data(geo.features).join("path")
+    .attr("class",d=>"pref"+(hit.has(d.properties.nam_ja)?" has":"")).attr("d",path);
+  prefSel.append("title").text(d=>d.properties.nam_ja);
+  g.append("g").attr("class","pins");
+  svg.node().__g=g;
+  zoomer=d3.zoom().scaleExtent([1,40]).translateExtent([[-100,-100],[W+100,H+100]])
+    .on("zoom",e=>{g.attr("transform",e.transform);scalePins(e.transform.k);});
+  svg.call(zoomer);
+  const views={all:null,kanto:[[138.95,35.15],[140.75,36.6]],tokai:[[136.6,34.5],[139.2,35.4]],
+    kansai:[[134.4,34.1],[136.2,35.1]],shikoku:[[132.3,32.8],[134.9,34.5]],west:[[129.8,33.2],[134.4,34.8]]};
+  goView=(v,center)=>{
+    document.querySelectorAll("[data-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.view===v)));
+    const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const t=reduce?svg:svg.transition().duration(600);
+    if(center){const [x,y]=proj(center);t.call(zoomer.transform,d3.zoomIdentity.translate(W/2,H/2).scale(9).translate(-x,-y));return;}
+    if(!views[v]){t.call(zoomer.transform,d3.zoomIdentity);return;}
+    const [[a,b],[c,d2]]=views[v];const [x0,y0]=proj([a,d2]),[x1,y1]=proj([c,b]);
+    const k=Math.min(W/(x1-x0),H/(y1-y0))*0.92;
+    t.call(zoomer.transform,d3.zoomIdentity.translate(W/2,H/2).scale(k).translate(-(x0+x1)/2,-(y0+y1)/2));
+  };
+  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>goView(b.dataset.view)));
+  $("zin").addEventListener("click",()=>svg.transition().duration(250).call(zoomer.scaleBy,1.6));
+  $("zout").addEventListener("click",()=>svg.transition().duration(250).call(zoomer.scaleBy,1/1.6));
+}
+const rOf=n=>4+Math.sqrt(n)*3;
+let curK=1;
+function scalePins(k){
+  curK=k;if(!pinSel)return;
+  pinSel.attr("r",d=>rOf(d.n)/k);ringSel&&ringSel.attr("r",d=>rOf(d.n)/k);
+  lblSel.attr("x",d=>d.x+(rOf(d.n)+3)/k).attr("y",d=>d.y+4/k).style("font-size",(11/k)+"px")
+    .style("stroke-width",(3/k)+"px").attr("display",k>=3.5?null:"none");
+}
+function renderMapState(){
+  if(!svg)return;
+  const g=svg.node().__g.select("g.pins");
+  const groups={};CASES.filter(visible).forEach(c=>{(groups[keyOf(c)]=groups[keyOf(c)]||[]).push(c);});
+  const rank=list=>list.reduce((a,c)=>TYPES[c.type].rank>TYPES[a].rank?c.type:a,list[0].type);
+  const pins=Object.entries(groups).map(([k,list])=>{const p=PLACES[k];const [x,y]=proj([p[1],p[0]]);
+    return {k,list,x,y,vague:!!p[2],top:rank(list),n:list.length,recent:list.some(c=>ageDays(c)<=90)};}).sort((a,b)=>b.n-a.n);
+  g.selectAll("*").remove();
+  ringSel=g.selectAll("circle.ring").data(pins.filter(d=>d.recent)).join("circle").attr("class","ring")
+    .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("stroke","var(--focus)");
+  pinSel=g.selectAll("circle.pin").data(pins).join("circle")
+    .attr("class",d=>"pin"+(d.vague?" vague":"")+(d.k===state.place?" sel":""))
+    .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("fill",d=>TYPES[d.top].color).attr("stroke-width",1.5)
+    .attr("tabindex",0).attr("role","button").attr("aria-label",d=>`${labelOf(d.k)} ${d.n}件`)
+    .on("click",(e,d)=>{state.place=state.place===d.k?null:d.k;render();})
+    .on("keydown",(e,d)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();state.place=state.place===d.k?null:d.k;render();}});
+  pinSel.append("title").text(d=>`${labelOf(d.k)}：${d.n}件`);
+  lblSel=g.selectAll("text").data(pins).join("text").attr("class","lbl").text(d=>d.k.split("|")[1]+(d.n>1?` ${d.n}`:""));
+  prefSel.classed("home",d=>state.home&&d.properties.nam_ja===fullName(state.home));
+  scalePins(curK);
+}
+function gotoPlace(k){
+  state.place=k;state.month=null;state.period=0;state.type=null;
+  if(location.hash&&location.hash!=="#now"){location.hash="now";}
+  render();
+  const p=PLACES[k];if(goView)goView(null,[p[1],p[0]]);
+  document.querySelector(".main").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>gotoPlace(b.dataset.goto)));
+
+/* 時系列（月別） */
+function renderTimeline(){
+  const months=[];const start=new Date(2024,0,1);
+  for(let d=new Date(start);d<=TODAY;d.setMonth(d.getMonth()+1))months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`);
+  const cnt={};CASES.forEach(c=>{const m=c.d.slice(0,7);cnt[m]=(cnt[m]||0)+1;});
+  const older=CASES.filter(c=>c.d<"2024-01").length;
+  const W=900,H=180,ml=26,mr=8,mt=14,mb=34;const bw=(W-ml-mr)/months.length;
+  const max=Math.max(2,...months.map(m=>cnt[m]||0));const ticks=[];for(let i=0;i<=max;i+=max>6?2:1)ticks.push(i);
+  const y=v=>H-mb-(v/ticks[ticks.length-1])*(H-mt-mb);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="月ごとの掲載件数">`;
+  ticks.forEach(t=>{s+=`<line class="gl" x1="${ml}" x2="${W-mr}" y1="${y(t)}" y2="${y(t)}"/><text class="axis" x="${ml-6}" y="${y(t)+4}" text-anchor="end">${t}</text>`;});
+  months.forEach((m,i)=>{const v=cnt[m]||0,x=ml+i*bw;
+    if(v)s+=`<rect class="b${state.month===m?" on":""}" x="${x+bw*.15}" y="${y(v)}" width="${bw*.7}" height="${H-mb-y(v)}" rx="1.5"/>`;
+    if(v)s+=`<text class="cnt" x="${x+bw/2}" y="${y(v)-3}" text-anchor="middle">${v}</text>`;
+    const [yy,mm]=m.split("-");
+    if(mm==="01"||mm==="07")s+=`<text class="axis" x="${x+bw/2}" y="${H-mb+14}" text-anchor="middle">${mm==="01"?yy+"年":""}${+mm}月</text>`;
+    s+=`<rect class="hit" x="${x}" y="${mt}" width="${bw}" height="${H-mt-mb}" data-m="${m}" tabindex="${v?0:-1}" role="button" aria-label="${yy}年${+mm}月 ${v}件"><title>${yy}年${+mm}月：${v}件</title></rect>`;});
+  s+=`</svg>`;
+  $("timeline").innerHTML=s+(older?`<p class="hint">2023年以前の掲載：${older}件（グラフ外）</p>`:"");
+  $("timeline").querySelectorAll("rect.hit").forEach(r=>{const f=()=>{const m=r.dataset.m;if(!cnt[m])return;state.month=state.month===m?null:m;state.place=null;render();};
+    r.addEventListener("click",f);r.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f();}});});
+}
+
+/* 一覧 */
+function render(){
+  document.querySelectorAll("[data-period]").forEach(b=>b.setAttribute("aria-pressed",String(!state.month&&+b.dataset.period===state.period)));
+  filters.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.type===state.type)));
+  $("reset").hidden=!state.place&&!state.type&&!state.month;
+  const pl=state.period===90?"直近3か月":state.period===365?"直近1年":"すべての期間";
+  const [my,mm]=state.month?state.month.split("-"):[];
+  $("listTitle").textContent=state.place?labelOf(state.place)+"の事件":(state.month?`${my}年${+mm}月の事件`:`${pl}の事件`);
+  const rows=CASES.filter(c=>state.place?keyOf(c)===state.place&&(!state.type||c.type===state.type):visible(c)).sort((a,b)=>b.d.localeCompare(a.d));
+  $("list").innerHTML=rows.length?rows.map(c=>{const t=TYPES[c.type];
+    return `<li class="item"><span class="stripe" style="background:${t.color}"></span><div>
+      <div class="meta"><span>${esc(c.show)}${ageDays(c)<=90?'<span class="new">直近</span>':""}</span><span class="type" style="color:${t.color}">${t.label}</span>${c.series?`<span class="series">${esc(c.series)}</span>`:""}</div>
+      <div class="place">${fullName(c.pref)} ${esc(c.city)}</div>
+      <p class="desc">${esc(c.desc)}</p>
+      <div class="src">出典：<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.src)}</a></div>
+    </div></li>`;}).join(""):`<li class="empty">この条件に合う事件はまだ掲載していません。期間を「すべて」にすると過去の事件も表示します。</li>`;
+  renderMapState();renderTimeline();
+}
+
+/* データページ（令和8年版警察白書） */
+const WP_CRIME=[["詐欺",3075],["薬物事犯",1887],["窃盗",1020],["風営適正化法違反",393],["強盗",304]];
+const WP_AGE=[["14〜19歳",1048],["20〜24歳",1564],["25〜29歳",1247],["30〜34歳",810],["35〜39歳",518],["40〜44歳",484],["45〜49歳",296],["50〜54歳",259],["55〜59歳",194],["60〜64歳",119],["65〜69歳",58],["70歳以上",82]];
+const WP_FRAUD=[["2016",407.7],["2017",394.7],["2018",382.9],["2019",315.8],["2020",285.2],["2021",282.0],["2022",370.8],["2023",907.7],["2024",1990.7],["2025",3257.4]];
+function hbars(id,rows,hot){const max=Math.max(...rows.map(r=>r[1]));
+  $(id).innerHTML=rows.map(([l,v])=>`<div class="hbar"><span>${l}</span><span class="track"><span class="fill${l===hot?" hot":""}" style="display:block;width:${(v/max*100).toFixed(1)}%"></span></span><span class="v">${v.toLocaleString()}人</span></div>`).join("");}
+hbars("byCrime",WP_CRIME,"強盗");hbars("byAge",WP_AGE,"20〜24歳");
+(function(){const W=720,H=240,ml=48,mr=10,mt=18,mb=28,n=WP_FRAUD.length,bw=(W-ml-mr)/n;
+  const ticks=[0,1000,2000,3000,3500];const y=v=>H-mb-v/3500*(H-mt-mb);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="特殊詐欺などの被害額の推移（億円）">`;
+  ticks.slice(0,4).forEach(t=>{s+=`<line class="gl" x1="${ml}" x2="${W-mr}" y1="${y(t)}" y2="${y(t)}"/><text class="axis" x="${ml-6}" y="${y(t)+4}" text-anchor="end">${t.toLocaleString()}</text>`;});
+  s+=`<text class="axis" x="${ml-6}" y="${mt-6}" text-anchor="end">億円</text>`;
+  WP_FRAUD.forEach(([yr,v],i)=>{const x=ml+i*bw;
+    s+=`<rect x="${x+bw*.18}" y="${y(v)}" width="${bw*.64}" height="${H-mb-y(v)}" rx="2" fill="${i>=7?"var(--focus)":"var(--bar)"}"><title>${yr}年：${v.toLocaleString()}億円</title></rect>`;
+    s+=`<text class="val" x="${x+bw/2}" y="${y(v)-4}" text-anchor="middle">${Math.round(v).toLocaleString()}</text>`;
+    s+=`<text class="axis" x="${x+bw/2}" y="${H-mb+16}" text-anchor="middle">${yr}</text>`;});
+  $("fraudChart").innerHTML=s+"</svg>";})();
+drawMap();renderLatest();renderNear();render();
+</script>
+
+</body>
+</html>
