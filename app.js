@@ -259,7 +259,7 @@ function render(){
       <div class="meta"><span>${esc(c.show)}${ageDays(c)<=90?'<span class="new">直近</span>':""}</span><span class="type" style="color:${t.color}">${t.label}</span>${c.series?`<span class="series">${esc(c.series)}</span>`:""}${c.basis==="headline"?'<span class="hl" title="記事本文を確認できず、報道の見出しで分類した事件">見出しで確認</span>':""}</div>
       <div class="place">${fullName(c.pref)} ${esc(c.city)}</div>
       <p class="desc">${esc(c.desc)}</p>
-      <div class="src">出典：<a href="${esc(safeUrl(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.src)}</a></div>
+      <div class="src">出典：<a href="${esc(safeUrl(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.src)}</a>${c.gone?'<span class="hint">（配信元で記事の掲載が終了）</span>':""}</div>
     </div></li>`;}).join(""):`<li class="empty">この条件に合う事件はまだ掲載していません。期間を「すべて」にすると過去の事件も表示します。</li>`;
   renderMapState();renderTimeline();
 }

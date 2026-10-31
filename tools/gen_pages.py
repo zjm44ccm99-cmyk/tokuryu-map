@@ -120,7 +120,7 @@ def item(c, types, dist=None):
     return (f'<li class="item"><span class="stripe" style="background:{COLORS[c["type"]]}"></span><div>'
             f'<div class="meta"><span>{e(c["show"])}</span><span class="t" style="color:{COLORS[c["type"]]}">{e(t["label"])}</span>{d}{badge}</div>'
             f'<div class="place">{e(full(c["pref"]))} {e(c["city"])}</div><p class="desc">{e(c["desc"])}</p>'
-            f'<div class="src">出典：<a href="{e(c["url"] if str(c["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(c["src"])}</a></div></div></li>')
+            f'<div class="src">出典：<a href="{e(c["url"] if str(c["url"]).startswith("https://") else "#")}" target="_blank" rel="noopener noreferrer">{e(c["src"])}</a>{"<span class=\"hint\">（配信元で記事の掲載が終了）</span>" if c.get("gone") else ""}</div></div></li>')
 
 def main():
     D = load(); types = D['TYPES']; places = D['PLACES']; cases = D['CASES']
