@@ -153,7 +153,7 @@ ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;ma
 .words span{border:1px dashed var(--muted);border-radius:3px;padding:1px 8px;font-size:13px}
 .block{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
 .report{border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:6px;padding:16px 18px;background:var(--surface);margin:18px 0}.report h2{margin:0 0 8px;font-size:18px}.report p{margin:0 0 8px}.rp-list{margin:0 0 8px;padding-left:1.2em}.rp-list li{margin:2px 0}.rp-how b{user-select:all}
-#reportBox{margin:14px 0 0}#reportBox h2{font-size:16px}
+#reportBox{margin:6px 0 0;padding:10px 14px}#reportBox h2{font-size:15px;margin:0;display:inline}#reportBox summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}#reportBox summary::-webkit-details-marker{display:none}#reportBox summary::before{content:"▸";color:var(--warn)}#reportBox[open] summary::before{content:"▾"}#reportBox[open] summary{margin-bottom:8px}.rp-more{font-size:12px;color:var(--muted);text-decoration:underline}
 .call{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (max-width:640px){.call{grid-template-columns:minmax(0,1fr)}}
 .call div{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--surface)}
@@ -222,6 +222,16 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <div class="updated" id="updated"></div>
   </div>
 
+  <div class="near" id="near">
+    <div class="near-row">
+      <h2>あなたの地域の近く</h2>
+      <label for="homeSel" class="row" style="margin:0"><span class="lab">都道府県</span></label>
+      <select id="homeSel"><option value="">全国</option></select>
+    </div>
+    <div id="nearBody"><p>都道府県を選ぶと、地図・事件・警察の注意情報が、その周辺（中心から150km以内）に切り替わります。</p></div>
+    <details class="report" id="reportBox" hidden><summary><h2>不審な電話は、警察に伝えよう</h2><span class="rp-more">伝えることと連絡先</span></summary><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></details>
+  </div>
+
   <div class="main">
     <section class="panel" aria-labelledby="maph">
       <h2 id="maph">地図 <small>ピンを押すとその市区町村の事件を表示</small></h2>
@@ -266,7 +276,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
   </div>
 
   <div>
-    <div class="row"><span class="lab">最新の事件</span></div>
+    <div class="row"><span class="lab" id="latestLab">最新の事件</span></div>
     <div class="latest" id="latest"></div>
   </div>
 
@@ -281,15 +291,6 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <div class="alerts" id="alerts"></div>
   </section>
 
-  <div class="near" id="near">
-    <div class="near-row">
-      <h2>あなたの地域の近く</h2>
-      <label for="homeSel" class="row" style="margin:0"><span class="lab">都道府県</span></label>
-      <select id="homeSel"><option value="">選んでください</option></select>
-    </div>
-    <div id="nearBody"><p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p></div>
-    <section class="report" id="reportBox" hidden aria-label="不審な電話の通報"><h2>不審な電話は、警察に伝えよう</h2><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></section>
-  </div>
 
   <section class="about" aria-labelledby="abouth">
     <h2 id="abouth">このサイトについて</h2>
