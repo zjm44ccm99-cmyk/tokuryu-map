@@ -178,7 +178,7 @@ const CASES=[
   src:"メ〜テレ（名古屋テレビ）",url:"https://www.nagoyatv.com/news/?id=035880"},
  {d:"2026-03-20",show:"2026年3月20日",pref:"東京",city:"江東区",type:"prep",
   desc:"事務所兼住宅の窓を割って押し入った強盗未遂。住人の夫婦が抵抗して未遂に終わった。不動産の相談で家を訪れ資産や家族構成を知った「情報元」と、計画を立てた「案件屋」を逮捕。",
-  src:"TBS NEWS DIG（Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/3e88ed6f62dd86a697a4d0db00bd2c6398e2a8fb"},
+  src:"NHK",url:"https://news.web.nhk/newsweb/na/na-k10015190781000"},
  {d:"2026-07-15",show:"2026年7月中旬",pref:"岐阜",city:"県内",type:"fraud",
   desc:"警察官を名乗る電話で「逮捕状が出ている」と言われた90代男性が、現金6000万円を自宅のポスト付近に置くよう指示され、だまし取られた。受け子と現金回収役の2人を逮捕。",
   src:"ぎふチャン（岐阜放送）",url:"https://www.zf-web.com/news/2026/08/10/181703.html"},
@@ -251,6 +251,9 @@ const CASES=[
  {d:"2026-08-04",show:"2026年8月報道",pref:"岡山",city:"岡山市中区",type:"fraud",
   desc:"息子を装う電話で高齢女性から現金300万円をだまし取った詐欺で、SNSの闇バイト募集で受け子を集めた勧誘役とみられる大阪市の28歳の男を逮捕。",
   src:"KSB瀬戸内海放送",url:"https://news.ksb.co.jp/article/16785738"},
+ {d:"2026-07-01",show:"2026年7月1日",pref:"岡山",city:"岡山市南区",type:"fraud",
+  desc:"息子らを装って鳥取県の男性から現金100万円をだまし取ろうとした詐欺未遂。駐車場で受け取りに現れた受け子役らを逮捕し、警察はトクリュウによる犯行とみている。",
+  src:"KSB瀬戸内海放送",url:"https://news.ksb.co.jp/article/16965866"},
 ];
 
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
@@ -262,6 +265,12 @@ const ALERTS=[
  {d:"2026-10-26",kind:"注意情報",pref:"兵庫",city:"西宮市",
   desc:"警察官や検察官を名乗ってビデオ通話に誘導し、現金をだまし取る詐欺の被害が10月23日と26日に相次いだ（計約725万円）。SNSの投資勧誘から偽の投資アプリに誘導された被害も出ている。",
   src:"西宮市（兵庫県警察の発表）",url:"https://www.nishi.or.jp/kurashi/anshin/bohanjoho/chui/bouhannjouhou.html"},
+ {d:"2026-10-27",kind:"予兆電話",pref:"埼玉",city:"新座市",
+  desc:"10月19日〜25日の1週間に予兆電話17件。郵便局員や警察官を名乗るものが多く、自動音声で「海外から違法な物が届いている」と告げて警察につなぐふりをする手口や、息子を名乗りかばんをなくしたと現金を求める手口も。",
+  src:"埼玉県警察 新座警察署",url:"https://www.police.pref.saitama.lg.jp/p0110/kenke/keimu/261027.html"},
+ {d:"2026-10-19",kind:"予兆電話",pref:"埼玉",city:"新座市",
+  desc:"10月12日〜18日の1週間に予兆電話15件。郵便局員を名乗る自動音声のほか、警察官を名乗り「マネーロンダリングに関与している」と脅す電話や、市役所職員を名乗り還付金があるとATMに誘導する電話も。",
+  src:"埼玉県警察 新座警察署",url:"https://www.police.pref.saitama.lg.jp/p0110/kenke/keimu/261019.html"},
  {d:"2026-10-29",kind:"予兆電話",pref:"神奈川",city:"茅ヶ崎市",
   desc:"銀行員を名乗り「古いキャッシュカードを交換する必要がある」などと話す詐欺の電話が、市内で多数かかっている（茅ヶ崎警察署）。",
   src:"茅ヶ崎市（茅ヶ崎警察署の情報）",url:"https://chigasaki-city.site.ktaiwork.jp/2026/10/29/%E8%A9%90%E6%AC%BA%E9%9B%BB%E8%A9%B1%E3%81%AB%E5%AF%BE%E3%81%99%E3%82%8B%E6%B3%A8%E6%84%8F%E5%96%9A%E8%B5%B7-7/"},
@@ -286,9 +295,6 @@ const ALERTS=[
  {d:"2026-10-09",kind:"予兆電話",pref:"埼玉",city:"杉戸町",basis:"headline",
   desc:"杉戸警察署の管内で、特殊詐欺の予兆電話が確認されている。",
   src:"埼玉県警察",url:"https://www.police.pref.saitama.lg.jp/p0380/kenke/sugitosagi20271009.html"},
- {d:"2026-07-01",show:"2026年7月1日",pref:"岡山",city:"岡山市南区",type:"fraud",
-  desc:"息子らを装って鳥取県の男性から現金100万円をだまし取ろうとした詐欺未遂。駐車場で受け取りに現れた受け子役らを逮捕し、警察はトクリュウによる犯行とみている。",
-  src:"KSB瀬戸内海放送",url:"https://news.ksb.co.jp/article/16965866"},
 ];
 
 /* 都道府県警察の公式SNS。県警の公式サイト（verify）でリンクが確認できたものだけを載せる。
