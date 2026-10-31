@@ -220,34 +220,6 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     <h1>いま、どこで起きているか</h1>
     <p class="lead">闇バイトで集められた実行役による強盗・窃盗・詐欺を、報道で確認できた範囲で時系列と地図にまとめています。お住まいの地域を選ぶと、近くで最近起きた事件が分かります。</p>
     <div class="updated" id="updated"></div>
-    <section class="about" aria-labelledby="abouth">
-      <h2 id="abouth">このサイトについて</h2>
-      <p><b>目的</b>　各地でばらばらに報じられるトクリュウの事件を一つの地図と時系列にまとめ、遠くのニュースを「自分の地域の備え」に変えるためのサイトです。</p>
-      <p><b>使い方</b>　お住まいの都道府県を選んで近くの事件を確かめ、「手口を知る」「対策する」で具体的な備えを。不審な電話や訪問は警察に知らせてください。</p>
-      <p><b>限界</b>　載っているのは報道で確認できた一部で、「〜か」と報じられた捜査中の事件も含みます。載っていない地域でも被害がないとは限りません。</p>
-      <p><b>運営</b>　個人が非営利で運営しています。情報提供や訂正の依頼は、ページ下のGitHubのIssueから。</p>
-    </section>
-    <p class="small">警察白書によると、匿流によるとみられる主な犯罪の検挙は2025年だけで6,679人。この地図に載っているのは、そのうち報道で場所まで確認できたごく一部です。<a href="#data">全体のデータを見る</a></p>
-  </div>
-
-  <div class="near" id="near">
-    <div class="near-row">
-      <h2>あなたの地域の近く</h2>
-      <label for="homeSel" class="row" style="margin:0"><span class="lab">都道府県</span></label>
-      <select id="homeSel"><option value="">選んでください</option></select>
-    </div>
-    <div id="nearBody"><p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p></div>
-    <section class="report" id="reportBox" hidden aria-label="不審な電話の通報"><h2>不審な電話は、警察に伝えよう</h2><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></section>
-  </div>
-
-  <section aria-labelledby="alh" id="alertsBox">
-    <div class="row"><span class="lab" id="alh">警察の注意情報（直近30日）</span><span class="lab">― 予兆電話や不審な電話・訪問の多発など。事件の前触れになりやすい情報です</span></div>
-    <div class="alerts" id="alerts"></div>
-  </section>
-
-  <div>
-    <div class="row"><span class="lab">最新の事件</span></div>
-    <div class="latest" id="latest"></div>
   </div>
 
   <div class="main">
@@ -293,11 +265,41 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
     </section>
   </div>
 
+  <div>
+    <div class="row"><span class="lab">最新の事件</span></div>
+    <div class="latest" id="latest"></div>
+  </div>
+
   <section class="panel tl" aria-labelledby="tlh">
     <h2 id="tlh">月ごとの掲載件数 <small>棒を押すとその月に絞り込み（発生月ベース）</small></h2>
     <div id="timeline"></div>
     <p class="hint">報道で確認できた件数で、実際の発生件数ではありません。報道の多い時期・地域ほど多く出ます。</p>
   </section>
+
+  <section aria-labelledby="alh" id="alertsBox">
+    <div class="row"><span class="lab" id="alh">警察の注意情報（直近30日）</span><span class="lab">― 予兆電話や不審な電話・訪問の多発など。事件の前触れになりやすい情報です</span></div>
+    <div class="alerts" id="alerts"></div>
+  </section>
+
+  <div class="near" id="near">
+    <div class="near-row">
+      <h2>あなたの地域の近く</h2>
+      <label for="homeSel" class="row" style="margin:0"><span class="lab">都道府県</span></label>
+      <select id="homeSel"><option value="">選んでください</option></select>
+    </div>
+    <div id="nearBody"><p>都道府県を選ぶと、その中心から150km以内で直近1年に起きた事件を近い順に表示します。</p></div>
+    <section class="report" id="reportBox" hidden aria-label="不審な電話の通報"><h2>不審な電話は、警察に伝えよう</h2><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></section>
+  </div>
+
+  <section class="about" aria-labelledby="abouth">
+    <h2 id="abouth">このサイトについて</h2>
+    <p><b>目的</b>　各地でばらばらに報じられるトクリュウの事件を一つの地図と時系列にまとめ、遠くのニュースを「自分の地域の備え」に変えるためのサイトです。</p>
+    <p><b>使い方</b>　お住まいの都道府県を選んで近くの事件を確かめ、「手口を知る」「対策する」で具体的な備えを。不審な電話や訪問は警察に知らせてください。</p>
+    <p><b>限界</b>　載っているのは報道で確認できた一部で、「〜か」と報じられた捜査中の事件も含みます。載っていない地域でも被害がないとは限りません。</p>
+    <p><b>運営</b>　個人が非営利で運営しています。情報提供や訂正の依頼は、ページ下のGitHubのIssueから。</p>
+  </section>
+  <p class="small">警察白書によると、匿流によるとみられる主な犯罪の検挙は2025年だけで6,679人。この地図に載っているのは、そのうち報道で場所まで確認できたごく一部です。<a href="#data">全体のデータを見る</a></p>
+
 
   <section class="notes">
     <h2>掲載基準と注意</h2>
