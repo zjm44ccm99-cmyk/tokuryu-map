@@ -29,7 +29,7 @@
   --bg:#f3f5f8; --surface:#ffffff; --fg:#161b24; --muted:#586273; --line:#d6dbe3;
   --sea:#e6edf5; --land:#ffffff; --land-hit:#dfe7f3; --border:#b9c3d1;
   --murder:#b3261e; --robbery:#c46a10; --theft:#3d6aa8; --fraud:#7a4fa0; --prep:#6b7380; --other:#2f8a7a;
-  --alert-bg:#fff4e8; --alert-line:#efc79a; --warn:#c2185b;
+  --alert-bg:#fff4e8; --alert-line:#efc79a; --warn:#c2185b; --lv1:#fbe3b8; --lv2:#f6c3d2;
   --focus:#c46a10; --halo:#ffffff; --bar:#3f659e;
   --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
   --body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
@@ -38,13 +38,13 @@
   --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
   --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
   --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1; --other:#6cc5b3;
-  --alert-bg:#2a2016; --alert-line:#6b4a24; --warn:#f06292;
+  --alert-bg:#2a2016; --alert-line:#6b4a24; --warn:#f06292; --lv1:#4d3b17; --lv2:#5c2235;
   --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#11151c; --surface:#181e27; --fg:#e7ebf1; --muted:#9aa5b5; --line:#2b3442;
   --sea:#0f141b; --land:#222a35; --land-hit:#2c3a4e; --border:#3a4556;
   --murder:#ef6b5f; --robbery:#e9963f; --theft:#7aa3e0; --fraud:#b791dc; --prep:#9aa3b1; --other:#6cc5b3;
-  --alert-bg:#2a2016; --alert-line:#6b4a24; --warn:#f06292;
+  --alert-bg:#2a2016; --alert-line:#6b4a24; --warn:#f06292; --lv1:#4d3b17; --lv2:#5c2235;
   --focus:#e9963f; --halo:#11151c; --bar:#7f9fd6; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.7;margin:0}
 .bar-top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -98,6 +98,15 @@ h2{text-wrap:balance}
 .pref{fill:var(--land);stroke:var(--border);stroke-width:.6;vector-effect:non-scaling-stroke}
 .pref.has{fill:var(--land-hit)}
 .pref.home{stroke:var(--focus);stroke-width:2}
+.pref.lv1{fill:var(--lv1)}.pref.lv2{fill:var(--lv2)}
+.lvbar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px}
+.lvb{display:inline-block;font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.lvb.l1{background:var(--lv1);border-color:transparent}.lvb.l2{background:var(--lv2);border-color:transparent}
+.lvbar button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 10px;cursor:pointer;color:inherit}
+.lvbar button.l1{background:var(--lv1);border-color:transparent}.lvbar button.l2{background:var(--lv2);border-color:transparent}
+.lvwhy{margin:4px 0 0;padding-left:1.2em;font-size:13px}
+.lvinfo{font-size:12px;color:var(--muted)}.lvinfo summary{cursor:pointer;text-decoration:underline}.lvinfo p,.lvinfo ul{margin:6px 0 0}
+.names{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px;font-size:13px}.names span{border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--surface)}.names b{font-weight:700}
 .pin{cursor:pointer;stroke:var(--halo);vector-effect:non-scaling-stroke}
 .pin.vague{fill-opacity:.25;stroke-dasharray:3 2;stroke-width:1.5}
 .pin.sel{stroke:var(--fg);stroke-width:2.5}
@@ -229,7 +238,14 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
       <label for="homeSel" class="row" style="margin:0"><span class="lab">都道府県</span></label>
       <select id="homeSel"><option value="">全国</option></select>
     </div>
+    <div id="lvBox" class="lvbar" aria-live="polite"></div>
     <div id="nearBody"><p>都道府県を選ぶと、地図・事件・警察の注意情報が、その周辺（中心から150km以内）に切り替わります。</p></div>
+    <details class="lvinfo"><summary>注意レベルの決め方（研究にもとづく目安）</summary>
+      <p><b>警戒</b>：その都道府県で、直近2週間にトクリュウの関与が報じられた強盗・窃盗・侵入などの事件があったとき、または警察が「警報」を出したとき。<br><b>注意</b>：直近7日に、予兆電話などの警察の注意情報があるとき。</p>
+      <p>空き巣などが起きると、その近所がしばらく狙われやすくなる「近接反復被害」が知られています。海外の研究では距離が数百メートル・期間が2〜4週間ほど、日本でも科学警察研究所が住宅侵入盗などで同じ傾向を確かめています。このため事件のあとの2週間を「警戒」にしています。</p>
+      <p>これは予測ではなく、備えるための目安です。載っているのは報道や公表で確認できた一部で、平常の地域が安全という意味ではありません。また、データの偏りがそのまま「危ない町」の烙印にならないよう、市区町村ごとの危険度や確率は出していません。</p>
+      <ul><li><a href="https://popcenter.asu.edu/sites/default/files/near_repeat_burglary_groff_2018.pdf" target="_blank" rel="noopener">Groff (2018) Near Repeat Burglary</a></li><li><a href="https://www.jstage.jst.go.jp/article/thagis/18/2/18_129/_article/-char/ja" target="_blank" rel="noopener">菊池ほか（2010）「近接反復被害の罪種間比較」</a></li><li><a href="https://hrdag.org/publications/to-predict-and-serve/" target="_blank" rel="noopener">Lum &amp; Isaac (2016) To predict and serve?（予測型警察の偏り）</a></li></ul>
+    </details>
     <details class="report" id="reportBox" hidden><summary><h2>不審な電話は、警察に伝えよう</h2><span class="rp-more">伝えることと連絡先</span></summary><p>だまされずに切った電話でも、知らせる意味があります。同じ名乗りの電話は、近所のほかの家にもかかっていることが多いからです。警察に集まった情報は、地域への注意の呼びかけ（予兆電話情報など）や捜査の手がかりになります。</p><ul class="rp-list"><li><b>いつ</b>：かかってきた日時</li><li><b>だれを名乗ったか</b>：警察官、市役所、銀行、家族など</li><li><b>何を聞かれたか</b>：家族構成、現金や資産、家にいる時間など</li><li><b>着信の番号</b>：画面に出た番号（偽装されていることもあります）</li></ul><p class="rp-how">急ぎでなければ <b>#9110</b>（警察相談専用電話）か最寄りの警察署へ。「これから家に行く」「お金を取りに行く」と言われたら、すぐに <b>110</b> へ。</p></details>
   </div>
 
@@ -262,6 +278,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
         <span><i style="background:var(--fraud)"></i>詐欺</span>
         <span><i style="background:var(--prep)"></i>予備・侵入・下見</span>
         <span><i style="background:var(--other)"></i>その他</span>
+        <span><i style="background:var(--lv2);border-radius:2px"></i>県の注意レベル：警戒</span>
+        <span><i style="background:var(--lv1);border-radius:2px"></i>注意</span>
         <span><i class="d"></i>警察の注意情報（直近30日）</span>
         <span><i class="p"></i>直近3か月（波紋）</span>
         <span><i class="v"></i>市区町村不明</span>
@@ -289,6 +307,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,[role="button"]:focus-
 
   <section aria-labelledby="alh" id="alertsBox">
     <div class="row"><span class="lab" id="alh">警察の注意情報（直近30日）</span><span class="lab">― 予兆電話や不審な電話・訪問の多発など。事件の前触れになりやすい情報です</span></div>
+    <div class="names" id="names"></div>
     <div class="alerts" id="alerts"></div>
   </section>
 

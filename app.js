@@ -57,6 +57,37 @@ const homeC=()=>state.home&&PREF_C[state.home]?PREF_C[state.home]:null;
 const inArea=c=>{const h=homeC();return !h||km(h,lonlat(c))<=NEAR_KM;};
 const alInArea=a=>{const h=homeC();if(!h)return true;const p=PLACES[a.pref+"|"+a.city];return km(h,[p[1],p[0]])<=NEAR_KM;};
 const areaName=()=>homeC()?fullName(state.home)+"周辺":"";
+const daysAgo=s=>{const [y,m,d]=s.split("-").map(Number);return (TODAY-new Date(y,m-1,d))/864e5;};
+const LV_TYPES=["murder","robbery","theft","prep"];
+function prefLevel(p){
+  let lv=0;const why=[];
+  CASES.filter(c=>c.pref===p&&!c.nodate&&LV_TYPES.includes(c.type)&&daysAgo(c.d)<=14&&daysAgo(c.d)>=-1)
+    .forEach(c=>{lv=2;why.push(`${esc(c.show)}、${esc(c.city)}で${TYPES[c.type].label}（事件から2週間は警戒）`);});
+  ALERT_LIST.filter(a=>a.pref===p&&daysAgo(a.d)<=7)
+    .forEach(a=>{if(/警報/.test(a.desc)){lv=2;}else{lv=Math.max(lv,1);}why.push(`${esc(fmtDate(a.d))}、${esc(a.city)}：${esc(a.desc.length>60?a.desc.slice(0,60)+"…":a.desc)}${/警報/.test(a.desc)?"（警報のため警戒）":""}`);});
+  return {lv,why};
+}
+const LV_NAME=["平常","注意","警戒"];
+const PREF_LIST="北海道,青森,岩手,宮城,秋田,山形,福島,茨城,栃木,群馬,埼玉,千葉,東京,神奈川,新潟,富山,石川,福井,山梨,長野,岐阜,静岡,愛知,三重,滋賀,京都,大阪,兵庫,奈良,和歌山,鳥取,島根,岡山,広島,山口,徳島,香川,愛媛,高知,福岡,佐賀,長崎,熊本,大分,宮崎,鹿児島,沖縄".split(",");
+let _LV=null;const LEVELS_=()=>_LV||(_LV=Object.fromEntries(PREF_LIST.map(p=>[p,prefLevel(p)])));
+function renderLevel(){
+  const box=$("lvBox");
+  if(homeC()){const L=LEVELS_()[state.home];
+    box.innerHTML=`<span>${fullName(state.home)}の注意レベル</span><span class="lvb l${L.lv}">${LV_NAME[L.lv]}</span>`+(L.why.length?`<ul class="lvwhy">${L.why.map(w=>`<li>${w}</li>`).join("")}</ul>`:`<span class="hint">直近の事件・注意情報は掲載されていません</span>`);
+    return;}
+  const l2=PREF_LIST.filter(p=>LEVELS_()[p].lv===2),l1=PREF_LIST.filter(p=>LEVELS_()[p].lv===1);
+  if(!l2.length&&!l1.length){box.innerHTML='<span>いま「警戒」「注意」の都道府県はありません</span>';return;}
+  box.innerHTML=(l2.length?`<span class="lvb l2">警戒</span>${l2.map(p=>`<button class="l2" data-p="${p}">${fullName(p)}</button>`).join("")}`:"")
+    +(l1.length?`<span class="lvb l1">注意</span>${l1.map(p=>`<button class="l1" data-p="${p}">${fullName(p)}</button>`).join("")}`:"");
+  box.querySelectorAll("button[data-p]").forEach(b=>b.addEventListener("click",()=>{homeSel.value=b.dataset.p;homeSel.dispatchEvent(new Event("change"));}));
+}
+/* 直近2週間の注意情報によく出てくる名乗り */
+const NAMES=[["警察官",/警察官|警察を名乗|警察を装/],["郵便局員",/郵便局/],["検察官",/検察/],["市役所などの職員",/役所|役場/],["銀行・金融機関",/銀行|金融機関|キャッシュカード/],["電力会社",/電力/],["通信会社",/通信会社|携帯電話会社/],["運送会社",/運送|宅配/],["家族（息子など）",/息子|孫|親族/],["信用情報機関",/信用情報/]];
+function renderNames(){
+  const list=ALERT_LIST.filter(a=>daysAgo(a.d)<=14&&alInArea(a));
+  const n=NAMES.map(([k,re])=>[k,list.filter(a=>re.test(a.desc)).length]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  $("names").innerHTML=n.length?`<span style="border:0;padding:2px 0;background:none">今週の手口・よく名乗られる相手（直近2週間の注意情報${list.length}件のうち）</span>`+n.map(([k,v])=>`<span><b>${k}</b> ${v}件</span>`).join(""):"";
+}
 const visible=c=>(state.month?c.d.slice(0,7)===state.month:inPeriod(c))&&(!state.type||c.type===state.type)&&inArea(c);
 
 /* 警察の注意情報（予兆電話など）。30日を過ぎたものは表示しない */
@@ -67,6 +98,7 @@ function alertCard(a,i,dist){return `<article class="acard" id="${aKey(a,i)}"><d
   <div class="src">出典：<a href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener noreferrer">${esc(a.src)}</a></div></article>`;}
 function renderAlerts(){
   if(!ALERT_LIST.length){$("alertsBox").hidden=true;return;}
+  renderNames();
   $("alh").textContent=homeC()?`警察の注意情報（${areaName()}・直近30日）`:"警察の注意情報（直近30日）";
   const h=homeC();
   const list=ALERT_LIST.map((a,i)=>({a,i})).filter(x=>alInArea(x.a));
@@ -102,6 +134,7 @@ homeSel.value=state.home;
 homeSel.addEventListener("change",()=>{state.home=homeSel.value;state.place=null;state.month=null;try{localStorage.setItem("tkr-home",state.home);}catch(e){}
   renderNear();renderAlerts();renderLatest();render();if(zoomHome)zoomHome();});
 function renderNear(){
+  renderLevel();
   $("reportBox").hidden=!homeC();
   if(!homeC()){$("nearBody").innerHTML='<p>都道府県を選ぶと、地図・事件・警察の注意情報が、その周辺（中心から150km以内）に切り替わります。</p>';return;}
   const c0=PREF_C[state.home];
@@ -211,6 +244,8 @@ function renderMapState(){
     .on("click",(e,d)=>flashAlert(d.i)).on("keydown",(e,d)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flashAlert(d.i);}});
   alertSel.append("title").text(d=>`${fmtDate(d.a.d)} ${fullName(d.a.pref)} ${d.a.city}：${d.a.kind}`);
   prefSel.classed("home",d=>state.home&&d.properties.nam_ja===fullName(state.home));
+  const lvOf=d=>{const p=PREF_LIST.find(x=>fullName(x)===d.properties.nam_ja);return p?LEVELS_()[p].lv:0;};
+  prefSel.classed("lv1",d=>lvOf(d)===1).classed("lv2",d=>lvOf(d)===2);
   scalePins(curK);
 }
 function gotoPlace(k){
