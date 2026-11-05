@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-04";
+const UPDATED="2026-11-05";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -268,6 +268,9 @@ const CASES=[
  {d:"2026-06-03",show:"2026年6月報道",pref:"大阪",city:"泉南市",type:"theft",
   desc:"店舗からスマートフォン約60台などを盗んだ疑いで、暴力団組員ら2人と実行役の少年4人を逮捕。少年らはSNSの闇バイトで集められたとみられ、指示役の1人が公開手配された。",
   src:"関西テレビ",url:"https://www.ktv.jp/news/articles/?id=27520"},
+ {d:"2026-11-05",show:"2026年11月5日報道",pref:"東京",city:"台東区",type:"theft",basis:"headline",
+  desc:"貴金属加工会社に窓を割って侵入し、金の延べ棒など約8540万円相当の金庫を盗んだ疑いで男4人を警視庁が逮捕。指示役と実行役に分かれた「トクリュウ」グループの犯行とみられる。",
+  src:"KSB瀬戸内海放送（ANN）",url:"https://news.ksb.co.jp/ann/article/17027011"},
 ];
 
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
