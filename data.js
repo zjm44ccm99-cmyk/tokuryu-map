@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-06";
+const UPDATED="2026-11-08";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -241,9 +241,9 @@ const CASES=[
  {d:"1900-01-01",nodate:true,show:"報道時期未確認",basis:"headline",pref:"京都",city:"府内",type:"theft",
   desc:"建設会社の社長宅から約1億円相当の金品を盗んだ疑いで、トクリュウの実行役とみられる男らを逮捕。",
   src:"ABCニュース（Infoseek）",url:"https://news.infoseek.co.jp/article/abcnews_62626/"},
- {d:"1900-01-01",nodate:true,show:"報道時期未確認",basis:"headline",pref:"沖縄",city:"県内",type:"other",
-  desc:"SNSで客を集め違法な高金利で貸し付けていた県内のヤミ金グループを、トクリュウとみて摘発。指示役を海外からの移送中に逮捕し、トップを起訴。",
-  src:"琉球新報（Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/7e1d6259697c6dfc4979cba96c98e31a21020a5f"},
+ {d:"2024-02-14",show:"2024年2月14日",pref:"沖縄",city:"県内",type:"other",
+  desc:"SNSで客を集め法定を超える高金利で貸し付けていたヤミ金グループの男9人を沖縄県警が出資法違反の疑いで逮捕。県内で初めてトクリュウとして摘発し、海外の指示役の関与を調べた。",
+  src:"琉球新報",url:"https://ryukyushimpo.jp/newspaper/entry-2804933.html"},
  {d:"2026-10-05",show:"2026年10月報道",pref:"広島",city:"広島市",type:"theft",
   desc:"高齢女性宅のマンションから現金約6800万円を盗んだ疑いで男女4人を逮捕。事件の3日前に警察官を名乗る人物から電話（アポ電）があった。",
   src:"RCC中国放送（Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/41de7fe82850284caf034d0361c1b0636b05d649"},
@@ -276,6 +276,9 @@ const CASES=[
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
    kind: 予兆電話／注意情報。電話番号・個人名は書かない。 */
 const ALERTS=[
+ {d:"2026-10-13",kind:"注意情報",pref:"茨城",city:"県内",basis:"headline",
+  desc:"茨城県警が今年初めての「特殊詐欺多発警報」を県央地域を対象に発表し、被害の増加に注意を呼びかけた。",
+  src:"NHK",url:"https://news.web.nhk/newsweb/na/nd-20261013de58670"},
  {d:"2026-11-04",kind:"注意情報",pref:"愛知",city:"県内",basis:"headline",
   desc:"警察官をかたる「ニセ警察詐欺」の被害が直近2週間で10億円を超えたとして、愛知県警が注意を呼びかけ。",
   src:"NHK",url:"https://news.web.nhk/newsweb/na/nd-20261104de70652"},
