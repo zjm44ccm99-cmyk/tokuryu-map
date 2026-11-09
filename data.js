@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-08";
+const UPDATED="2026-11-09";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -59,8 +59,8 @@ const CASES=[
   desc:"80代の夫婦が粘着テープで拘束され刃物で切り付けられ、現金8万円が奪われた。",
   src:"文春オンライン",url:"https://bunshun.jp/articles/-/74630"},
  {d:"2024-10-16",show:"2024年10月16日（発覚）",pref:"神奈川",city:"横浜市青葉区",type:"murder",series:S24,
-  desc:"住宅で75歳の男性が殺害された強盗殺人事件。神奈川県警は特別捜査本部を設置。",
-  src:"文春オンライン",url:"https://bunshun.jp/articles/-/74630"},
+  desc:"住宅で75歳の男性が殺害された強盗殺人事件。神奈川県警は特別捜査本部を設置。2026年11月6日、千葉地裁は実行役の被告2人に求刑どおり無期懲役を言い渡した。",
+  src:"NHK",url:"https://news.web.nhk/newsweb/na/nd-20261106de71570"},
  {d:"2024-10-90",show:"2024年秋",pref:"千葉",city:"船橋市",type:"robbery",series:S24,
   desc:"住宅での強盗致傷。同市では強盗予備・住宅侵入未遂・強盗未遂も起きている。",
   src:"千葉日報（首都圏連続強盗まとめ）",url:"https://www.chibanippo.co.jp/news/national/1298636"},
