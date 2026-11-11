@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-09";
+const UPDATED="2026-11-11";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -276,6 +276,9 @@ const CASES=[
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
    kind: 予兆電話／注意情報。電話番号・個人名は書かない。 */
 const ALERTS=[
+ {d:"2026-11-11",kind:"予兆電話",pref:"埼玉",city:"新座市",
+  desc:"11月2日〜8日の1週間に予兆電話24件。警察官を名乗るものが7件、運送会社が6件、郵便局員が5件で、年金事務所や金融機関、通信会社、親族を名乗る例も。多くが「警察へ転送する」と告げる手口で、ATMでの操作を求められた例もある。",
+  src:"埼玉県警察 新座警察署",url:"https://www.police.pref.saitama.lg.jp/p0110/kenke/keimu/261109.html"},
  {d:"2026-10-13",kind:"注意情報",pref:"茨城",city:"県内",basis:"headline",
   desc:"茨城県警が今年初めての「特殊詐欺多発警報」を県央地域を対象に発表し、被害の増加に注意を呼びかけた。",
   src:"NHK",url:"https://news.web.nhk/newsweb/na/nd-20261013de58670"},
