@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-13";
+const UPDATED="2026-11-14";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -194,7 +194,7 @@ const CASES=[
   desc:"強盗を準備した疑いで少年らを逮捕。警察はトクリュウとの関連を調べている。",
   src:"日本経済新聞",url:"https://www.nikkei.com/article/DGXZQOUE21AE00R21C24A0000000/"},
  {d:"2026-05-22",show:"2026年5月22日",basis:"headline",pref:"東京",city:"新宿区",type:"prep",
-  desc:"四谷で、買い取り店に持ち込まれる金塊を狙って強盗の準備をしていたとみられる男らを、警戒中の警察が確保。トクリュウの可能性。11月13日には指示役とみられる会社経営の女が強盗予備容疑で逮捕されたと報じられた（同一事件かは報道から確定できない）。",
+  desc:"四谷で、買い取り店に持ち込まれる金塊を狙って強盗の準備をしていたとみられる男らを、警戒中の警察が確保。トクリュウの可能性。警視庁は11月12日、14人が逮捕された同事件の指示役とみられる会社経営の女を強盗予備の疑いで逮捕した（NHK、KSB報道）。",
   src:"テレビ朝日系（YouTube）",url:"https://www.youtube.com/watch?v=sLhcUJIdFDI"},
  {d:"2026-06-25",show:"2026年6月報道",basis:"headline",pref:"福岡",city:"田川市",type:"prep",
   desc:"住宅に押し入る強盗を準備した疑いで、実行役ら3〜4人を逮捕。トクリュウとの関わりを捜査。",
