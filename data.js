@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-16";
+const UPDATED="2026-11-17";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -277,7 +277,7 @@ const CASES=[
   desc:"金塊を奪う目的で刃物などを実行役に用意させた強盗予備の疑いで、指示役とみられる暴力団組員の男を警視庁が逮捕。実行役はすでに逮捕されており、匿流の指示役とみられている。",
   src:"京都新聞（共同通信）",url:"https://www.kyoto-np.co.jp/articles/-/1824727"},
  {d:"2026-11-15",show:"2026年11月15日報道",pref:"愛知",city:"小牧市",type:"robbery",basis:"headline",
-  desc:"住宅に押し入った強盗で高齢の女性が重傷を負い、愛知県警が捜査本部を設置した。報道はトクリュウによる犯行の可能性に触れている。",
+  desc:"住宅に押し入った強盗で高齢の女性が重傷を負い、愛知県警が捜査本部を設置した。その後、現行犯で外国籍の男と少年4人が逮捕され、一部は闇バイトに応募したと話しており、警察は匿名・流動型犯罪グループの犯行とみて捜査している。",
   src:"テレビ朝日系（ANN・Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/0ebe08d8ceb73967e8e41301ccebf285f1bb708a"},
 ];
 
