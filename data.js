@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-22";
+const UPDATED="2026-11-24";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -304,6 +304,9 @@ const CASES=[
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
    kind: 予兆電話／注意情報。電話番号・個人名は書かない。 */
 const ALERTS=[
+ {d:"2026-11-24",kind:"注意情報",pref:"神奈川",city:"県内",basis:"headline",
+  desc:"神奈川県警が特殊詐欺警報を出し、県内で詐欺被害が相次いでいるとして注意を呼びかけている。",
+  src:"tvkニュース（Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/b7a5e18ce574b359eac3b0cff80c5ddadb59a8af"},
  {d:"2026-11-19",kind:"注意情報",pref:"長野",city:"県内",basis:"headline",
   desc:"警察官をかたる「ニセ警察詐欺」で、県内では多額の被害が相次いでいる。",
   src:"NHK",url:"https://news.web.nhk/newsweb/na/nd-20261119de78172"},
