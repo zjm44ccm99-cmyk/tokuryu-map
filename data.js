@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-25";
+const UPDATED="2026-11-26";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -302,6 +302,9 @@ const CASES=[
  {d:"2026-11-25",show:"2026年11月25日報道",pref:"岡山",city:"倉敷市",type:"theft",
   desc:"倉敷市の空き家などに侵入して腕時計を盗んだ疑いで、岡山県警が男2人を逮捕。匿名・流動型犯罪グループの「資金提供者」と「運搬役」とみて、他のメンバーも捜査している。",
   src:"KSB瀬戸内海放送",url:"https://news.ksb.co.jp/article/17078336"},
+ {d:"2026-11-25",show:"2026年11月25日報道",pref:"奈良",city:"県内",type:"theft",basis:"headline",
+  desc:"奈良県と茨城県の住宅での侵入窃盗に絡み、前橋市の暴力団組長が逮捕された。警察は匿名・流動型犯罪グループ（トクリュウ）の首謀者とみて調べている。",
+  src:"NHK",url:"https://news.web.nhk/newsweb/na/nd-20261125de81473"},
 ];
 
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
