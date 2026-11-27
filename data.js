@@ -1,5 +1,5 @@
 /* トクリュウ事件マップ データ。自動更新はこのファイルだけを編集する。 */
-const UPDATED="2026-11-26";
+const UPDATED="2026-11-27";
 const TYPES={
   murder:{label:"強盗殺人",color:"var(--murder)",rank:4},
   robbery:{label:"強盗・強盗致傷",color:"var(--robbery)",rank:3},
@@ -293,9 +293,9 @@ const CASES=[
  {d:"1900-01-01",nodate:true,show:"報道時期未確認",basis:"headline",pref:"山梨",city:"県内",type:"prep",
   desc:"バールなどを持って駐車場で強盗の準備をした疑いで、16歳の男子高校生3人が逮捕された。スマートフォンに指示役とみられる人物のメッセージが残っており、トクリュウの関与が疑われている。",
   src:"UTYテレビ山梨（Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/fb2547e50e6cc2c5c9d2244833f0908c5ab57cde"},
- {d:"1900-01-01",nodate:true,show:"報道時期未確認",basis:"headline",pref:"神奈川",city:"県内",type:"theft",
-  desc:"集合住宅に侵入して金庫を盗んだ疑いで男3人を神奈川県警が逮捕。指示役と実行役に分かれた「トクリュウ」とみられている。",
-  src:"東京新聞（dメニューニュース）",url:"https://topics.smt.docomo.ne.jp/article/tokyo/region/tokyo-528768"},
+ {d:"2026-11-17",show:"2026年11月17日報道",pref:"神奈川",city:"横浜市",type:"theft",
+  desc:"集合住宅に侵入して金庫を盗んだ疑いで、神奈川県警が男2人を再逮捕（指示役を含め計3人が逮捕）。匿流による強盗の標的になるおそれがあるとして、県警は住人を事前に避難させていた。",
+  src:"熊本日日新聞（共同通信配信）",url:"https://kumanichi.com/articles/2058849"},
  {d:"2026-11-18",show:"2026年11月18日報道",pref:"福島",city:"福島市",type:"other",basis:"headline",
   desc:"無許可で営業していた接待を伴う飲食店の売上を資金洗浄した疑いで、「トクリュウ」のリーダー格とみられる男が4回目の逮捕となった。",
   src:"ふくしまNEWS KFB福島放送",url:"https://www.kfb.co.jp/news/article/17061927"},
@@ -310,6 +310,9 @@ const CASES=[
 /* 警察の注意情報（予兆電話・不審な電話や訪問の多発など）。サイトには発表日から30日間だけ表示される。
    kind: 予兆電話／注意情報。電話番号・個人名は書かない。 */
 const ALERTS=[
+ {d:"2026-11-26",kind:"注意情報",pref:"神奈川",city:"県内",basis:"headline",
+  desc:"神奈川県警が11月26日にも特殊詐欺警報を発表し、詐欺の電話が集中しているとして注意を呼びかけている。",
+  src:"tvkニュース（Yahoo!ニュース）",url:"https://news.yahoo.co.jp/articles/f927a64a4f89f2eb53c7e4c8abdd62aae19fe60a"},
  {d:"2026-11-07",kind:"注意情報",pref:"熊本",city:"熊本市",
   desc:"郵便局員をかたり「警察につなぐ」などと告げて個人情報を聞き出し、偽の警察官が預金の引き出しや郵送を迫る詐欺電話が熊本市で多数確認されているとして、熊本県警が注意を呼びかけている。",
   src:"熊本県警察（熊本日日新聞掲載）",url:"https://kumanichi.com/articles/2055302"},
